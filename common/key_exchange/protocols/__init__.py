@@ -11,7 +11,7 @@ from common.tools.misc import Concatenation, RandomByteGenerator
 
 class KeyExchangeProtocol(object):
     
-    MAX_INT = DiffieHellman.MAX_INT
+    MAX_INT = 2**64 - 1
     LENGTH_FIELD_SIZE = 4
     BLOCK_SIZE = 16
     
