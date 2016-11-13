@@ -1,6 +1,6 @@
 from common.attacks.bitflipping import BitFlippingAttack,\
                                        UserProfileGenerator, UserProfileParser
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.modes import CBC
 from common.tools.misc import RandomByteGenerator
 
@@ -14,7 +14,7 @@ class CBCBitFlippingAttack(BitFlippingAttack):
         return 'X'*(10 + 2*self.block_size)
 
 
-class Set2Challenge16(MatasanoChallenge):
+class Set2Challenge16(CryptoChallenge):
 
     BLOCK_SIZE = 16
 

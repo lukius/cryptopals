@@ -1,8 +1,8 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.random.mt19937 import MersenneTwister
 
 
-class Set3Challenge21(MatasanoChallenge):
+class Set3Challenge21(CryptoChallenge):
     
     SEED = 1
     INTS = 5

@@ -1,8 +1,8 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.tools import ECBDecrypter, ECBEncryptionOracle
         
 
-class Set2Challenge12(MatasanoChallenge):
+class Set2Challenge12(CryptoChallenge):
 
     def expected_value(self):
         return 'Rollin\' in my 5.0\n' +\

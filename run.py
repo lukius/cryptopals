@@ -2,7 +2,7 @@ import string
 import sys
 from argparse import ArgumentParser
 
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.misc import Concatenation
 
 
@@ -92,8 +92,14 @@ class Runner(object):
                 self._show_message(message % requirement)
     
     def _import_challenge(self, set_num, challenge_num):
-        real_challenge_num = (int(set_num)-1)*self.MAX_CHALLENGES +\
-                             int(challenge_num)
+        n = (int(set_num)-1)*self.MAX_CHALLENGES
+        start_num = n + 1
+        end_num = n + self.MAX_CHALLENGES
+        challenge_num = int(challenge_num)
+        if start_num <= challenge_num <= end_num:
+            real_challenge_num = challenge_num
+        else:
+            real_challenge_num = n + challenge_num
         set_directory = self.SET_PLACEHOLDER % set_num
         challenge_name = self.CHALLENGE_PLACEHOLDER % str(real_challenge_num)
         challenge_path = '%s.%s' % (set_directory, challenge_name)
@@ -119,7 +125,7 @@ class Runner(object):
             self.challenges_failed += 1
                 
     def _get_challenge_classes(self):
-        challenge_classes = MatasanoChallenge.__subclasses__()
+        challenge_classes = CryptoChallenge.__subclasses__()
         challenge_classes = map(self._get_proper_classes, challenge_classes)
         return Concatenation(challenge_classes).value()
                 

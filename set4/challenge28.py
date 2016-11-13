@@ -1,10 +1,10 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.hash.sha1 import SHA1
 from common.mac.hash import HashBasedMAC
 from common.tools.misc import RandomByteGenerator
 
 
-class Set4Challenge28(MatasanoChallenge):
+class Set4Challenge28(CryptoChallenge):
 
     MESSAGE = 'foo bar baz'
 

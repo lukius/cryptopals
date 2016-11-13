@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.pubkey.rsa import FixedERSA
 from common.hash.sha1 import SHA1
 from common.math.root import NthRoot
@@ -87,7 +87,7 @@ class InsecurePKCS1_15DigitalSignature(PKCS1_15DigitalSignature):
         return message_hash == hash_from_signature
 
 
-class Set6Challenge42(MatasanoChallenge):
+class Set6Challenge42(CryptoChallenge):
 
     STRING = 'hi mom'
     

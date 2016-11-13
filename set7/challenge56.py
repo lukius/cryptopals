@@ -1,6 +1,6 @@
 import string
 
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.stream.rc4 import RC4
 from common.tools.base64 import Base64Decoder
 from common.tools.misc import RandomByteGenerator, Concatenation
@@ -89,12 +89,12 @@ class RC4EncryptionOracle(object):
         return RC4(key).encrypt(message + self.suffix)
         
 
-class Set7Challenge56(MatasanoChallenge):
+class Set7Challenge56(CryptoChallenge):
     
     PLAINTEXT = 'QkUgU1VSRSBUTyBEUklOSyBZT1VSIE9WQUxUSU5F'
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.plaintext = Base64Decoder().decode(self.PLAINTEXT)
     
     def expected_value(self):

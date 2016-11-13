@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.random.mt19937 import MersenneTwister
 
 
@@ -46,13 +46,13 @@ class MersenneTwisterCloner(object):
         return MersenneTwisterClone(state)
 
 
-class Set3Challenge23(MatasanoChallenge):
+class Set3Challenge23(CryptoChallenge):
     
     SEED = 100
     INTS = MersenneTwister.STATE_SIZE
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.prng = MersenneTwister(seed=self.SEED)
     
     def _values_for(self, prng):

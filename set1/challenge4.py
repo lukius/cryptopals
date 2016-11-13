@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.converters import HexToBytes
 from common.tools.misc import FileLines
 from common.attacks.xor import SingleByteXORDecrypter
@@ -21,7 +21,7 @@ class SingleByteXORFinder(object):
         return candidate_plaintext
     
 
-class Set1Challenge04(MatasanoChallenge):
+class Set1Challenge04(CryptoChallenge):
     
     FILE = 'set1/data/4.txt'
     

@@ -1,7 +1,7 @@
 import random
 
 from common.tools.base64 import Base64Decoder
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.padders import InvalidPaddingException, PKCS7Unpadder
 from common.tools.misc import RandomByteGenerator, FileLines
 from common.tools.xor import ByteXOR
@@ -125,13 +125,13 @@ class CBCPaddingOracleBlockDecrypter(object):
         return self.plaintext_candidates[0]
 
     
-class Set3Challenge17(MatasanoChallenge):
+class Set3Challenge17(CryptoChallenge):
 
     BLOCK_SIZE = 16
     INPUT_FILE = 'set3/data/17.txt'
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.plaintext = self._choose_plaintext()
 
     def _choose_plaintext(self):

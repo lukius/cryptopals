@@ -1,5 +1,5 @@
 from common.attacks.key_exchange import KeyExchangeProtocolMITMAttack
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.key_exchange.protocols import KeyExchangeProtocol
 from common.key_exchange.protocols.toy import KeyExchangeToyProtocolServer,\
                                               KeyExchangeToyProtocolClient
@@ -91,7 +91,7 @@ class KeyExchangeMITMAttackWithGEqualsPMinus1(KeyExchangeMITMAttackWithCustomG):
         return [1, self.p - 1]
 
 
-class Set5Challenge35(MatasanoChallenge):
+class Set5Challenge35(CryptoChallenge):
     
     def _validate_attack(self, attack_class):
         client = KeyExchangeToyProtocolClient()

@@ -1,8 +1,8 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.padders import PKCS7Padder
 
 
-class Set2Challenge09(MatasanoChallenge):
+class Set2Challenge09(CryptoChallenge):
     
     STRING = 'YELLOW SUBMARINE'
     

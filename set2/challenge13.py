@@ -1,6 +1,6 @@
 import random
 
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import ECB
 from common.tools.padders import PKCS7Padder
@@ -80,7 +80,7 @@ class AdminUserProfileGenerator(object):
         return ciphertext1
 
 
-class Set2Challenge13(MatasanoChallenge):
+class Set2Challenge13(CryptoChallenge):
 
     BLOCK_SIZE = AdminUserProfileGenerator.BLOCK_SIZE
 

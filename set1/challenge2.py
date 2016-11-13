@@ -1,8 +1,8 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.xor import HexXOR
 
 
-class Set1Challenge02(MatasanoChallenge):
+class Set1Challenge02(CryptoChallenge):
     
     def expected_value(self):
         return '746865206b696420646f6e277420706c6179'

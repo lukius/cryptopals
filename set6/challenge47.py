@@ -1,12 +1,12 @@
 from common.attacks.pkcs1_5 import PKCS1_5PaddingOracleAttack,\
                                    PKCS1_5PaddingOracle
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.pubkey.rsa import RSA
 from common.tools.misc import ByteSize
 from common.tools.padders import PKCS1_5Padder
 
 
-class Set6Challenge47(MatasanoChallenge):
+class Set6Challenge47(CryptoChallenge):
     
     STRING = 'Pochoclin!'
     RSA_BITS = 256

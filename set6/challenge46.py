@@ -1,5 +1,5 @@
 from common.attacks.rsa import RSAOracleAttack, RSAOracle
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.pubkey.rsa import RSA
 from common.tools.base64 import Base64Decoder
 
@@ -42,13 +42,13 @@ class RSAParityOracle(RSAOracle):
         return int_plaintext % 2 == 0
 
 
-class Set6Challenge46(MatasanoChallenge):
+class Set6Challenge46(CryptoChallenge):
     
     STRING = 'VGhhdCdzIHdoeSBJIGZvdW5kIHlvdSBkb24ndCBwbGF5IGFyb3VuZCB3aXRo'+\
              'IHRoZSBGdW5reSBDb2xkIE1lZGluYQ=='
 
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.plaintext = Base64Decoder().decode(self.STRING)
 
     def expected_value(self):

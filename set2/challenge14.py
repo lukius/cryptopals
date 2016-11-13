@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.tools import ECBDecrypter, ECBEncryptionOracle
 from common.tools.misc import RandomByteGenerator, AllEqual
 
@@ -53,7 +53,7 @@ class ECBDecrypterForRandomPrefixOracle(ECBDecrypter):
         return ECBDecrypter._decrypt_string(self)
         
 
-class Set2Challenge14(MatasanoChallenge):
+class Set2Challenge14(CryptoChallenge):
 
     def expected_value(self):
         return 'Rollin\' in my 5.0\n' +\

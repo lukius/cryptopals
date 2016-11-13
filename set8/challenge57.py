@@ -1,5 +1,5 @@
 from common.attacks.discrete_log import SubgroupConfinementAttack
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 
 from set8.misc import CustomMAC, DHMessageAuthenticator
     
@@ -18,10 +18,10 @@ class CustomSubgroupConfinementAttack(SubgroupConfinementAttack):
         return trial_mac.value(msg) == target_mac
 
 
-class Set8Challenge57(MatasanoChallenge):
+class Set8Challenge57(CryptoChallenge):
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.bob = DHMessageAuthenticator()
     
     def expected_value(self):

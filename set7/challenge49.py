@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.blockstring import BlockString
 from common.mac.cbc import CBC_MAC
 from common.tools.misc import RandomByteGenerator
@@ -56,7 +56,7 @@ class CBC_MACGenerator(object):
         return message, self.mac.value(message)
 
 
-class Set7Challenge49(MatasanoChallenge):
+class Set7Challenge49(CryptoChallenge):
     
     BLOCK_SIZE = 16
     VICTIM_ID = 1

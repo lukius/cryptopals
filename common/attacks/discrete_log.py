@@ -85,6 +85,13 @@ class PollardKangarooAttack(object):
         return self.modexp.value(2, x%self.k)
         
     def _compute_N(self):
+        # N (i.e., the number of the tame kangaroo jumps) is computed as 
+        # 4m, with
+        #   m = ([(p-1)/k] * sum_j 2^j mod p) / (p-1), 0 <= j < k
+        # i.e., the mean value of the outputs of f. It is scaled with a 
+        # factor of 4 following Pollard's analysis: if N = \Theta * m with
+        # \Theta = 4, the probability of missing the wild kangaroo is about
+        # 0.02.
         s = (self.modexp.value(2,self.k) - 1) % self.p
         w = (self.p-1)//self.k
         s *= w

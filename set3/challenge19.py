@@ -1,9 +1,9 @@
 from common.tools.base64 import Base64Decoder
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.misc import Concatenation
         
 
-class Set3Challenge19(MatasanoChallenge):
+class Set3Challenge19(CryptoChallenge):
 
     ANSWER_FILE = 'set3/data/19.txt'
     KEY = '\x8f\xc3\x7e\xfb\xc2\x00\x8f\x67\x22\xbe\xfd\xbe\xed\x6a\x39\xf7' +\

@@ -1,5 +1,5 @@
 from common.attacks.mac import MDHashBasedMACMessageForger
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.hash.sha1 import SHA1
 from common.mac.hash import HashBasedMAC
 from common.tools.misc import RandomByteGenerator
@@ -11,7 +11,7 @@ class SHA1BasedMACMessageForger(MDHashBasedMACMessageForger):
         return SHA1
 
 
-class Set4Challenge29(MatasanoChallenge):
+class Set4Challenge29(CryptoChallenge):
     
     STRING = 'comment1=cooking%20MCs;userdata=foo;'+\
              'comment2=%20like%20a%20pound%20of%20bacon'

@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from common.attacks.hash.multicollisions import MulticollisionGenerator
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.hash.tools.build import BasicHashFunctionFactory,\
                                     ComposedHashFunction
 from common.tools.misc import AllEqual
@@ -43,7 +43,7 @@ class ComposedHashFunctionCollisionGenerator(object):
         return composed_hash_collisions
 
 
-class Set7Challenge52(MatasanoChallenge):
+class Set7Challenge52(CryptoChallenge):
     
     def validate(self):
         weak_hash = BasicHashFunctionFactory.build(16)

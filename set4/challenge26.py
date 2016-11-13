@@ -2,7 +2,7 @@ import random
 
 from common.attacks.bitflipping import BitFlippingAttack,\
                                        UserProfileGenerator, UserProfileParser
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.modes import CTR
 from common.tools.misc import RandomByteGenerator
 
@@ -15,7 +15,7 @@ class CTRBitFlippingAttack(BitFlippingAttack):
         return 'X'*10 + 'X'*self.block_size
 
 
-class Set4Challenge26(MatasanoChallenge):
+class Set4Challenge26(CryptoChallenge):
 
     BLOCK_SIZE = 16
     NONCE_SIZE = 8

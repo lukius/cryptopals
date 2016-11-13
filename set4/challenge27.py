@@ -1,7 +1,7 @@
 from common.attacks.bitflipping import UserProfileGenerator,\
                                        UserProfileParser,\
                                        InvalidProfileException
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.modes import CBC
 from common.tools.misc import RandomByteGenerator
 from common.tools.xor import ByteXOR
@@ -56,7 +56,7 @@ class CustomUserProfileParser(UserProfileParser):
         return profile
     
 
-class Set4Challenge27(MatasanoChallenge):
+class Set4Challenge27(CryptoChallenge):
 
     BLOCK_SIZE = 16
 

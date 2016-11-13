@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.math.invmod import ModularInverse
 from common.math.modexp import ModularExp
 from common.signature.dsa import DSA, DSAParameterGenerator
@@ -19,7 +19,7 @@ class DSAMagicSignature(object):
         return r, s
 
 
-class Set6Challenge45(MatasanoChallenge):
+class Set6Challenge45(CryptoChallenge):
     
     STRING1 = 'Hello, world'
     STRING2 = 'Goodbye, world'

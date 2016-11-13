@@ -1,8 +1,8 @@
 from common.tools.base64 import Base64Encoder
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 
 
-class Set1Challenge01(MatasanoChallenge):
+class Set1Challenge01(CryptoChallenge):
     
     def expected_value(self):
         return 'SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9p'+\

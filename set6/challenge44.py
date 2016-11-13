@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.hash.sha1 import SHA1
 from common.math.invmod import ModularInverse
 from common.tools.converters import HexToBytes, HexToInt, IntToHex
@@ -29,7 +29,7 @@ class DSAPrivateKeyCrackerFromRepeatedNonce(object):
         return self._get_key_from(k, hashes[0], signatures[0])
             
             
-class Set6Challenge44(MatasanoChallenge):
+class Set6Challenge44(CryptoChallenge):
     
     P = '800000000000000089e1855218a0e7dac38136ffafa72eda7'+\
         '859f2171e25e65eac698c1702578b07dc2a1076da241c76c6'+\

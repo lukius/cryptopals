@@ -1,8 +1,8 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.pubkey.rsa import RSA
 
 
-class Set5Challenge39(MatasanoChallenge):
+class Set5Challenge39(CryptoChallenge):
     
     PLAINTEXT = 'Vos tambien la tenes adentro.'
     

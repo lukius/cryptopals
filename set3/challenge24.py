@@ -1,6 +1,6 @@
 import random
 
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.stream.mt19937 import MersenneTwisterCipher
 from common.random.mt19937 import MersenneTwister
 from common.tools.misc import RandomByteGenerator
@@ -49,10 +49,10 @@ class MersenneTwisterCipherKeyRecover(object):
         return self._recover_key_from(ciphertext)
 
 
-class Set3Challenge24(MatasanoChallenge):
+class Set3Challenge24(CryptoChallenge):
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.cipher = CustomMersenneTwisterCipher()
     
     def expected_value(self):

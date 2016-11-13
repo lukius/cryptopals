@@ -1,6 +1,6 @@
 import random
 
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import ECB, CBC
 from common.ciphers.block.tools import ECB_CBCDetectionOracle
@@ -37,12 +37,12 @@ class RandomECB_CBCEncrypter(object):
         return AES(key).encrypt(plaintext, mode=self.mode)
     
 
-class Set2Challenge11(MatasanoChallenge):
+class Set2Challenge11(CryptoChallenge):
     
     BLOCK_SIZE = 16
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.encrypter = RandomECB_CBCEncrypter(self.BLOCK_SIZE)
         self.oracle = ECB_CBCDetectionOracle(self.encrypter, self.BLOCK_SIZE)
     

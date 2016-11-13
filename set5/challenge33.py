@@ -1,8 +1,8 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.key_exchange.diffie_hellman import DiffieHellman
 
 
-class Set5Challenge33(MatasanoChallenge):
+class Set5Challenge33(CryptoChallenge):
     
     P = 'ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020'+\
         'bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe135'+\

@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.misc import FileLines
 
 
@@ -27,7 +27,7 @@ class ECBEncryptionFinder(object):
         return candidate_string
     
 
-class Set1Challenge08(MatasanoChallenge):
+class Set1Challenge08(CryptoChallenge):
     
     FILE = 'set1/data/8.txt'
     

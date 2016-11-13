@@ -1,9 +1,9 @@
 from common.tools.base64 import Base64Decoder
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.attacks.xor import RepeatingKeyXORDecrypter
         
 
-class Set1Challenge06(MatasanoChallenge):
+class Set1Challenge06(CryptoChallenge):
     
     FILE = 'set1/data/6.txt'
     

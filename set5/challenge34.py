@@ -1,11 +1,11 @@
 from common.attacks.key_exchange import KeyExchangeProtocolMITMAttack
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.key_exchange.protocols import KeyExchangeProtocol
 from common.key_exchange.protocols.toy import KeyExchangeToyProtocolServer,\
                                               KeyExchangeToyProtocolClient
 
 
-class Set5Challenge34(MatasanoChallenge):
+class Set5Challenge34(CryptoChallenge):
     
     def validate(self):
         client = KeyExchangeToyProtocolClient()

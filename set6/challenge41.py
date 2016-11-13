@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.pubkey.rsa import RSA
 from common.hash.sha1 import SHA1
 from common.math.invmod import ModularInverse
@@ -43,7 +43,7 @@ class OneTimeRSA(RSA):
         return RSA.decrypt(self, ciphertext)
 
 
-class Set6Challenge41(MatasanoChallenge):
+class Set6Challenge41(CryptoChallenge):
 
     PLAINTEXT = 'Vos tambien la tenes adentro.'
     

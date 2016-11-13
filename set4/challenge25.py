@@ -1,5 +1,5 @@
 from common.tools.base64 import Base64Decoder
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.aes import AES, RandomAccessAES
 from common.ciphers.block.modes import ECB
 from common.tools.misc import RandomByteGenerator
@@ -15,14 +15,14 @@ class RandomAccessAESDecrypter(object):
         return self.cipher.edit(ciphertext, 0, ciphertext).bytes()
 
 
-class Set4Challenge25(MatasanoChallenge):
+class Set4Challenge25(CryptoChallenge):
 
     FILE = 'set4/data/25.txt'
     KEY = 'YELLOW SUBMARINE'
     BLOCK_SIZE = 16
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         ciphertext = Base64Decoder().decode_file(self.FILE)
         self.plaintext = AES(self.KEY).decrypt(ciphertext, mode=ECB()).bytes()
     

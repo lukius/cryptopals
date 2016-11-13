@@ -1,6 +1,6 @@
 from common.attacks.discrete_log import PollardKangarooAttack,\
                                         EnhancedSubgroupConfinementAttack
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.math.modexp import ModularExp
 
 from set8.misc import DHMessageAuthenticator, CustomMAC
@@ -26,7 +26,7 @@ class CustomSubgroupConfinementAttack(EnhancedSubgroupConfinementAttack):
         return trial_mac.value(msg) == target_mac
     
 
-class Set8Challenge58(MatasanoChallenge):
+class Set8Challenge58(CryptoChallenge):
     
     p = 11470374874925275658116663507232161402086650258453896274534991676898999262641581519101074740642369848233294239851519212341844337347119899874391456329785623
     q = 335062023296420808191071248367701059461
@@ -36,7 +36,7 @@ class Set8Challenge58(MatasanoChallenge):
     y2 = 9388897478013399550694114614498790691034187453089355259602614074132918843899833277397448144245883225611726912025846772975325932794909655215329941809013733
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.bob = DHMessageAuthenticator()
         
     def _validate(self):

@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.key_exchange.protocols.srp import SecureRemotePassword,\
                                               SecureRemotePasswordClient,\
                                               SecureRemotePasswordServer
@@ -20,7 +20,7 @@ class SRPAuthBypassWithZeroKey(SecureRemotePasswordClient):
         self._set_key_from(S)
 
 
-class Set5Challenge37(MatasanoChallenge):
+class Set5Challenge37(CryptoChallenge):
     
     EMAIL = 'foo@bar.baz'
     PASSWORD = 'at4r0rrep'

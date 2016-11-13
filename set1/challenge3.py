@@ -1,9 +1,9 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.converters import HexToBytes
 from common.attacks.xor import SingleByteXORDecrypter 
 
 
-class Set1Challenge03(MatasanoChallenge):
+class Set1Challenge03(CryptoChallenge):
     
     STRING = '1b37373331363f78151b7f2b783431333d78397828372d363c7'+\
              '8373e783a393b3736'

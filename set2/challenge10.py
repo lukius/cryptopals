@@ -1,10 +1,10 @@
 from common.tools.base64 import Base64Decoder
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import CBC
 
 
-class Set2Challenge10(MatasanoChallenge):
+class Set2Challenge10(CryptoChallenge):
     
     FILE = 'set2/data/10.txt'
     KEY = 'YELLOW SUBMARINE'

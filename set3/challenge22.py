@@ -1,7 +1,7 @@
 import random
 import time
 
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.random.mt19937 import MersenneTwister
 
 
@@ -35,13 +35,13 @@ class MersenneTwisterSeedCracker(object):
                 return seed
 
 
-class Set3Challenge22(MatasanoChallenge):
+class Set3Challenge22(CryptoChallenge):
     
     MIN_SLEEP_SECONDS = 50
     MAX_SLEEP_SECONDS = 2000
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.seed = self._get_seed()
         self.output = self._get_output()
         self._advance_clock()

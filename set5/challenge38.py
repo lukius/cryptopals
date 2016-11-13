@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.key_exchange.protocols.ssrp import SimplifiedSRPClient,\
                                                SimplifiedSRPServer
 from common.mac.hmac import HMAC
@@ -34,7 +34,7 @@ class SSRPPasswordCracker(SimplifiedSRPServer):
                 return password
 
 
-class Set5Challenge38(MatasanoChallenge):
+class Set5Challenge38(CryptoChallenge):
     
     EMAIL = 'foo@bar.baz'
     PASSWORD = 'admin1234'

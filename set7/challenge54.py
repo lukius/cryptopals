@@ -1,11 +1,11 @@
 from common.attacks.hash.nostradamus import NostradamusAttack
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.hash.md import MDHashFunction
 from common.hash.tools.build import BasicHashFunctionFactory
 from common.tools.misc import RandomByteGenerator
 
 
-class Set7Challenge54(MatasanoChallenge):
+class Set7Challenge54(CryptoChallenge):
     
     LENGTH = 50
     BLOCK_SIZE = MDHashFunction.block_size()

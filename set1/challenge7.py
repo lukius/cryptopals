@@ -1,10 +1,10 @@
 from common.tools.base64 import Base64Decoder
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import ECB
 
     
-class Set1Challenge07(MatasanoChallenge):
+class Set1Challenge07(CryptoChallenge):
     
     ANSWER_FILE = 'set1/data/6ans.txt'
     FILE = 'set1/data/7.txt'

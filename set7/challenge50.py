@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.blockstring import BlockString
 from common.hash import HashFunction
 from common.mac.cbc import CBC_MAC
@@ -16,7 +16,7 @@ class CBC_MACHash(HashFunction):
         return self.mac_generator.value(message)
 
 
-class Set7Challenge50(MatasanoChallenge):
+class Set7Challenge50(CryptoChallenge):
     
     BLOCK_SIZE = 16
     KEY = 'YELLOW SUBMARINE'
@@ -25,7 +25,7 @@ class Set7Challenge50(MatasanoChallenge):
     TARGET_SNIPPET = "alert('Ayo, the Wu is back!');"
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.hash_function = CBC_MACHash(self.KEY, self.IV)
     
     def expected_value(self):

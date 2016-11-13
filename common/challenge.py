@@ -3,7 +3,7 @@ class ChallengeFailure(Exception):
     pass
 
 
-class MatasanoChallenge(object):
+class CryptoChallenge(object):
     
     def expected_value(self):
         raise NotImplementedError

@@ -1,4 +1,4 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.pubkey.rsa import FixedERSA
 from common.math.crt import ChineseRemainderTheorem
 from common.math.root import NthRoot
@@ -17,7 +17,7 @@ class RSABroadcastAttack(object):
         return IntToBytes(nth_root).value()
 
 
-class Set5Challenge40(MatasanoChallenge):
+class Set5Challenge40(CryptoChallenge):
     
     PLAINTEXT = 'Vos tambien la tenes adentro.'
     E = 3

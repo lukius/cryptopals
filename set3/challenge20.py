@@ -2,7 +2,7 @@ from common.attacks.xor import RepeatingKeyXORDecrypter
 from common.tools.base64 import Base64Decoder
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import CTR
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.misc import Concatenation, FileLines, RandomByteGenerator
 
 
@@ -24,7 +24,7 @@ class ConcatenationAfterTruncation(object):
         return Concatenation(strings).value()
 
 
-class Set3Challenge20(MatasanoChallenge):
+class Set3Challenge20(CryptoChallenge):
     
     FILE = 'set3/data/20.txt'
     ANSWER_FILE = 'set3/data/20ans.txt'

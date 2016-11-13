@@ -2,7 +2,7 @@ import zlib
 
 from common.attacks.compression import CTRCompressionRatioAttack,\
                                        CBCCompressionRatioAttack
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import BlockCipherMode, CBC, CTR
 from common.tools.misc import RandomByteGenerator
@@ -49,7 +49,7 @@ class CBCCompressionOracle(HTTPCompressionOracle):
         return CBC(iv)
 
 
-class Set7Challenge51Base(MatasanoChallenge):
+class Set7Challenge51Base(CryptoChallenge):
     
     # This length corresponds to the length of the cookie used in the challenge.
     # For greater lengths, the algorithm used here does not seem to work
@@ -61,7 +61,7 @@ class Set7Challenge51Base(MatasanoChallenge):
     COOKIE = RandomByteGenerator().value(COOKIE_SIZE)
     
     def __init__(self):
-        MatasanoChallenge.__init__(self)
+        CryptoChallenge.__init__(self)
         self.cookie = Base64Encoder().encode(self.COOKIE)
     
     def expected_value(self):

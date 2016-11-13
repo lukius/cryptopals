@@ -1,9 +1,9 @@
-from common.challenge import MatasanoChallenge
+from common.challenge import CryptoChallenge
 from common.tools.padders import PKCS7Padder, PKCS7Unpadder 
 from common.tools.padders import InvalidPaddingException       
 
 
-class Set2Challenge15(MatasanoChallenge):
+class Set2Challenge15(CryptoChallenge):
 
     STRING = 'ICE ICE BABY'
     SIZE = 16
