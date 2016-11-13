@@ -25,4 +25,4 @@ class ChineseRemainderTheorem(object):
             M_i, _, _ = egcd.value(N_i, n_i)
             x += r_i * M_i * N_i
             
-        return x % N
+        return x % N, N

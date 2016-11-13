@@ -1,3 +1,8 @@
+class ChallengeFailure(Exception):
+    
+    pass
+
+
 class MatasanoChallenge(object):
     
     def expected_value(self):
@@ -10,11 +15,23 @@ class MatasanoChallenge(object):
         try:
             method()
         except exception:
-            return True
+            pass
         else:
-            return False    
+            raise ChallengeFailure
+        
+    def _assert_equals(self, a, b):
+        if a != b:
+            raise ChallengeFailure
     
-    def validate(self):
+    def _validate(self):
         value = self.value()
         expected_value = self.expected_value()
         return value == expected_value
+    
+    def validate(self):
+        try:
+            self._validate()
+        except ChallengeFailure:
+            return False
+        else:
+            return True

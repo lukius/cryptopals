@@ -12,7 +12,7 @@ class RSABroadcastAttack(object):
         self.n = len(self.moduli)
         
     def decrypt(self, ciphertexts):
-        crt_result = ChineseRemainderTheorem().solve(ciphertexts, self.moduli)
+        crt_result, _ = ChineseRemainderTheorem().solve(ciphertexts, self.moduli)
         nth_root = NthRoot(self.n).value(crt_result)
         return IntToBytes(nth_root).value()
 
