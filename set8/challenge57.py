@@ -1,13 +1,9 @@
-import random
-
 from common.challenge import MatasanoChallenge
+from common.attacks.discrete_log import PohligHellmannAttack
 from common.hash.sha256 import SHA256
 from common.key_exchange.diffie_hellman import DiffieHellman
 from common.mac.hmac import HMAC
 from common.tools.converters import IntToBytes
-from common.math.prime import Primes
-from common.math.modexp import ModularExp
-from common.math.crt import ChineseRemainderTheorem
 
 
 class DHMessageAuthenticator(object):
@@ -38,59 +34,18 @@ class CustomMAC(object):
         return HMAC(key_bytes, hash_function=SHA256)
     
     
-class PohligHellmannAttack(object):
-    
+class DHSubgroupConfinementAttack(PohligHellmannAttack):    
+
     def __init__(self, target):
+        PohligHellmannAttack.__init__(self, target.p, target.q)
         self.target = target
-        self.modexp = ModularExp(self.target.p)
         self.mac = CustomMAC()
         
-    def _get_remainder_for(self, r):
-        # Get an h such that h^r = 1 mod p (due to Euler's Theorem).
-        while True:
-            h = random.randint(1, self.target.p-1)
-            h = self.modexp.value(h, (self.target.p-1)/r)
-            if h != 1:
-                break
-            
+    def _key_is_valid(self, trial_key, h):
         # Send h to the target and receive the authenticated message.    
         msg, target_mac = self.target.get_authenticated_message(h)
-        
-        # Finally, guess the remainder by brute-forcing its possible values.
-        for k in xrange(r):
-            trial_key = self.modexp.value(h, k)
-            trial_mac = self.mac.value(trial_key)
-            if trial_mac.value(msg) == target_mac:
-                return k
-        
-    def _get_remainders(self):
-        moduli = list()
-        remainders = list()
-        j = (self.target.p - 1) / self.target.q
-        m = 1
-        # Find factors of j = (p-1)/q
-        for p in Primes():
-            if j % p == 0 and j % (p*p) != 0:
-                # For each factor p, compute the remainder
-                #   b = x mod p (where x is the target's key)
-                b = self._get_remainder_for(p)
-                moduli.append(p)
-                remainders.append(b)
-                m *= p
-                if m >= self.target.q:
-                    break
-        return remainders, moduli
-        
-    def _get_key(self, remainders, moduli):
-        # Last step: use CRT to solve 
-        #  x = remainders_i mod moduli_i
-        crt = ChineseRemainderTheorem()
-        x = crt.solve(remainders, moduli)
-        return x % self.target.q
-        
-    def recover_key(self):
-        remainders, moduli = self._get_remainders()
-        return self._get_key(remainders, moduli)
+        trial_mac = self.mac.value(trial_key)
+        return trial_mac.value(msg) == target_mac
 
 
 class Set8Challenge57(MatasanoChallenge):
@@ -103,5 +58,5 @@ class Set8Challenge57(MatasanoChallenge):
         return self.bob._get_secret_key()
     
     def value(self):
-        attack = PohligHellmannAttack(self.bob)
+        attack = DHSubgroupConfinementAttack(self.bob)
         return attack.recover_key()

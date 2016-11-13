@@ -139,8 +139,9 @@ class Runner(object):
             if self.challenges_failed == 0:
                 self._show_message('\nAll challenges OK.\n')
             else:
-                self._show_message('\n%d challenges failed.\n' %
-                                   self.challenges_failed)
+                suffix = '' if self.challenges_failed == 1 else 's'
+                self._show_message('\n%d challenge%s failed.\n' %
+                                   (self.challenges_failed, suffix))
     
     def run(self):
         self._check_requirements()
