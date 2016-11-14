@@ -6,8 +6,8 @@ class Set8Challenge59(CryptoChallenge):
 
     # Elliptic curve y^2 = x^3 + ax + b
     #  * Over Z_p
-    #  * With generator G whose order is d. 
-    #  * And #E(Z_p) = o.
+    #  * #E(Z_p) = o.
+    #  * Also, point G on E(Z_p) has order d. 
     a = -95051
     b = 11279326    
     p = 233970423115425145524320034830162017933
