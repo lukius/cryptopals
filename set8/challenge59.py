@@ -2,6 +2,17 @@ from common.challenge import CryptoChallenge
 from common.math.ecc import EllipticCurve
 from common.key_exchange.diffie_hellman import EllipticCurveDiffieHellman,\
                                                UnsafeEllipticCurveDiffieHellman
+from common.attacks.ecc import InvalidCurveAttack
+
+
+class CustomInvalidCurveAttack(InvalidCurveAttack):
+
+    def __init__(self, curve, target, order):
+        InvalidCurveAttack.__init__(self, curve, order)
+        self.target = target
+
+    def _key_is_valid(self, trial_key, P):    
+        return trial_key == self.target.get_secret_from(P)
 
 
 class Set8Challenge59(CryptoChallenge):
@@ -16,6 +27,16 @@ class Set8Challenge59(CryptoChallenge):
     g = (182, 85518893674295321206118380980485522083)
     d = 29246302889428143187362802287225875743
     o = 233970423115425145498902418297807005944
+    
+    # Invalid curves and their orders.
+    E1 = EllipticCurve(-95051, 210, p)
+    o1 = 233970423115425145550826547352470124412
+    
+    E2 = EllipticCurve(-95051, 504, p)
+    o2 = 233970423115425145544350131142039591210
+    
+    E3 = EllipticCurve(-95051, 727, p)
+    o3 = 233970423115425145545378039958152057148
     
     def __init__(self):
         CryptoChallenge.__init__(self)
@@ -46,6 +67,8 @@ class Set8Challenge59(CryptoChallenge):
         self._test_ec_diffie_hellman()
         
         # 3. Recover Bob's key with the invalid curve attack.
-        # TBD
-    
-    
+        attack = CustomInvalidCurveAttack(self.curve, self.bob, self.d)
+        key_recovered = attack.recover_key([(self.E1, self.o1),
+                                            (self.E2, self.o2), 
+                                            (self.E3, self.o3)])[0]
+        self._assert_equals(self.bob.exp, key_recovered)
