@@ -1,4 +1,4 @@
-from common.math.gcd import ExtendedGCD
+from common.math.invmod import ModularInverse
 from common.tools.misc import Product
 
 
@@ -16,13 +16,12 @@ class ChineseRemainderTheorem(object):
         
         N = Product(moduli).value()
         x = 0
-        egcd = ExtendedGCD()
         
         for i in xrange(len(moduli)):
             r_i = remainders[i]
             n_i = moduli[i]
             N_i = N/n_i
-            M_i, _, _ = egcd.value(N_i, n_i)
+            M_i = ModularInverse(n_i).value(N_i)
             x += r_i * M_i * N_i
             
         return x % N, N
