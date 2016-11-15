@@ -1,3 +1,8 @@
+from common.math.invmod import ModularInverse
+from common.math.modexp import ModularExp
+from common.math.prime import Primes
+
+
 class NthRoot(object):
 
     def __init__(self, n):
@@ -29,3 +34,52 @@ class NthRoot(object):
                 break
             
         return y
+    
+
+class ModularSquareRoot(object):
+    
+    def __init__(self, p):
+        self.p = p
+        self.modexp = ModularExp(self.p)
+        
+    def value(self, x):
+        # Computes y s.t. y^2 = x mod p using Tonelli-Shanks.
+        # IMPORTANT: p must be prime!
+        
+        # We first check whether x is a quadratic residue in Z_p.
+        legendre_symbol = self.modexp.value(x, (self.p-1)/2)
+        if legendre_symbol != 1:
+            return None
+        
+        p_1 = self.p - 1
+        s = 0
+        # Find s such that p - 1 = Q * 2^s
+        while p_1 % 2 == 0:
+            p_1 /= 2
+            s += 1
+        Q = p_1
+            
+        # Find z such that z is a quadratic non-residue in Z_p.
+        # It can be seen that the smallest such z is also a prime.
+        for q in Primes():
+            legendre_symbol = self.modexp.value(q, (self.p-1)/2)
+            if legendre_symbol == self.p - 1:
+                z = q
+                break
+
+        v = self.modexp.value(z, Q)
+        r = self.modexp.value(x, (Q+1)/2)
+        x1 = ModularInverse(self.p).value(x)
+        
+        while True:
+            t = (r*r*x1) % self.p
+            if t == 1:
+                break
+            i = 1
+            t_sq = (t*t) % self.p
+            while t_sq != 1:
+                t_sq = (t_sq * t_sq) % self.p
+                i += 1
+            r = (r * self.modexp.value(v, 2**(s-i-1))) % self.p
+            
+        return r
