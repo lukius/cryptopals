@@ -1,5 +1,5 @@
 from common.challenge import CryptoChallenge
-from common.math.ecc import EllipticCurve
+from common.math.ecc import WeierstrassEllipticCurve
 from common.key_exchange.diffie_hellman import EllipticCurveDiffieHellman,\
                                                UnsafeEllipticCurveDiffieHellman
 from common.attacks.ecc import InvalidCurveAttack
@@ -29,18 +29,18 @@ class Set8Challenge59(CryptoChallenge):
     o = 233970423115425145498902418297807005944
     
     # Invalid curves and their orders.
-    E1 = EllipticCurve(-95051, 210, p)
+    E1 = WeierstrassEllipticCurve(-95051, 210, p)
     o1 = 233970423115425145550826547352470124412
     
-    E2 = EllipticCurve(-95051, 504, p)
+    E2 = WeierstrassEllipticCurve(-95051, 504, p)
     o2 = 233970423115425145544350131142039591210
     
-    E3 = EllipticCurve(-95051, 727, p)
+    E3 = WeierstrassEllipticCurve(-95051, 727, p)
     o3 = 233970423115425145545378039958152057148
     
     def __init__(self):
         CryptoChallenge.__init__(self)
-        self.curve = EllipticCurve(self.a, self.b, self.p)
+        self.curve = WeierstrassEllipticCurve(self.a, self.b, self.p)
         self.G = self.curve.point(self.g)
         self.alice = EllipticCurveDiffieHellman(self.curve, g=self.G,
                                                 g_order=self.d)
