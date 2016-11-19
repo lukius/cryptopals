@@ -37,7 +37,7 @@ class Set8Challenge58(CryptoChallenge):
     
     def __init__(self):
         CryptoChallenge.__init__(self)
-        self.bob = DHMessageAuthenticator()
+        self.bob = DHMessageAuthenticator(self.p, self.g, self.q)
         
     def _validate(self):
         kangaroo_attack = PollardKangarooAttack(self.p, self.g)
@@ -52,7 +52,7 @@ class Set8Challenge58(CryptoChallenge):
         # y2_idx should be 359579674340.
         y2_idx = kangaroo_attack.get_index(self.y2, a=0, b=2**40)
         self._assert_equals(modexp.value(self.g, y2_idx), self.y2)        
-        
+
         attack = CustomSubgroupConfinementAttack(self.bob)
         secret_key = self.bob._get_secret_key()
         key_recovered = attack.recover_key()

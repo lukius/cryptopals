@@ -147,10 +147,9 @@ class EnhancedSubgroupConfinementAttack(SubgroupConfinementAttack):
         y = self._target_public_key()
         g_n = self.modexp.value(self.g, n)
         y_prime = (y * ModularInverse(self.p).value(g_n)) % self.p
+        g_prime = self.modexp.value(self.g, r)
         
-        kangaroo_attack = PollardKangarooAttack(self.p, self.g)
-        
+        kangaroo_attack = PollardKangarooAttack(self.p, g_prime)
         y_prime_idx = kangaroo_attack.get_index(y_prime, a=0, b=(self.q-1)/r)
-        
         if y_prime_idx is not None:
             return n + y_prime_idx * r
