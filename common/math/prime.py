@@ -12,6 +12,9 @@ class RandPrime(object):
             n = self.DEFAULT_BITS
         return number.getPrime(n)
     
+def is_prime(n):
+    return number.isPrime(n, false_positive_prob=1e-10)
+    
     
 def Primes():
     # (slow!) generator of prime numbers.

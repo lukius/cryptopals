@@ -1,5 +1,5 @@
-from common.attacks.discrete_log import PollardKangarooAttack,\
-                                        EnhancedSubgroupConfinementAttack
+from common.attacks.discrete_log.kangaroo import IntegerKangarooAttack
+from common.attacks.discrete_log.subgroup import EnhancedSubgroupConfinementAttack
 from common.challenge import CryptoChallenge
 from common.math.modexp import ModularExp
 
@@ -40,7 +40,7 @@ class Set8Challenge58(CryptoChallenge):
         self.bob = DHMessageAuthenticator(self.p, self.g, self.q)
         
     def _validate(self):
-        kangaroo_attack = PollardKangarooAttack(self.p, self.g)
+        kangaroo_attack = IntegerKangarooAttack(self.g, self.p)
         modexp = ModularExp(self.p)
         
         # First validation: index of y1.

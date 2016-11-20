@@ -60,4 +60,13 @@ class UnsafeEllipticCurveDiffieHellman(EllipticCurveDiffieHellman):
     # submitted as the peer public key is a valid curve point.
     
     def _new_point(self, P):
-        return self.curve.point(P)  
+        return self.curve.point(P)
+    
+    
+class MontgomeryCurveDiffieHellman(EllipticCurveDiffieHellman):
+    
+    def _compute_public_key(self):
+        return self.curve.ladder(self.g.x, self.exp)
+
+    def get_secret_from(self, key):
+        return self.curve.ladder(key, self.exp)

@@ -1,4 +1,4 @@
-from common.attacks.discrete_log import SubgroupConfinementAttack
+from common.attacks.discrete_log.subgroup import SubgroupConfinementAttack
 from common.challenge import CryptoChallenge
 
 from set8.misc import CustomMAC, DHMessageAuthenticator
