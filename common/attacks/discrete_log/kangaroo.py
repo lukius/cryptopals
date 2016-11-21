@@ -1,5 +1,3 @@
-import threading
-
 from common.math.group import Z_n
 from common.math.modexp import ModularExp
 
@@ -75,29 +73,3 @@ class EllipticCurveKangarooAttack(PollardKangarooAttack):
     
     def f(self, P):
         return self.modexp.value(2, (P.x*P.y)%self.k)
-    
-    
-class StoppableECKangarooAttack(EllipticCurveKangarooAttack):
-    
-    def __init__(self, g, p):
-        EllipticCurveKangarooAttack.__init__(self, g, p)
-        self.should_stop = False
-        self.lock = threading.Lock()
-
-    def _iterate(self, x, y):
-        x, y = EllipticCurveKangarooAttack._iterate(self, x, y)
-        with self.lock:
-            if self.should_stop:
-                raise StopIteration
-        return x, y
-
-    def get_index(self, y, a, b):
-        try:
-            idx = EllipticCurveKangarooAttack.get_index(self, y, a, b)
-        except StopIteration:
-            idx = None
-        return idx
-
-    def stop(self):
-        with self.lock:
-            self.should_stop = True

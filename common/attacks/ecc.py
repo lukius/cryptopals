@@ -1,7 +1,7 @@
+import multiprocessing
 import random
-import threading
 
-from common.attacks.discrete_log.kangaroo import StoppableECKangarooAttack
+from common.attacks.discrete_log.kangaroo import EllipticCurveKangarooAttack
 from common.math.crt import ChineseRemainderTheorem
 from common.math.prime import Primes, is_prime
 from common.math.modexp import ModularExp
@@ -178,10 +178,11 @@ class InsecureTwistAttack(object):
         # of possibilities (each factor doubles the size of the space).
         xs, N = self._get_key_mod_N_candidates(remainders, moduli)
         
-        self.event = threading.Event()
-        self.lock = threading.Lock()
-        self.key = None
+        # We should have two candidates of the key mod N. We thus launch two
+        # processes to peform the kangaroo attack in parallel.
         workers = list()
+        self.key = None
+        self.queue = multiprocessing.Queue()
         
         for x in xs:
             worker = KangarooWorker(self)
@@ -190,28 +191,25 @@ class InsecureTwistAttack(object):
             
         finished = 0
         while self.key is None and finished < len(workers):
-            self.event.wait()
-            with self.lock:
-                self.event.clear()
-                finished += 1
+            self.key = self.queue.get()
+            finished += 1
             
-        if self.key is not None:
+        if self.key is not None or finished >= len(workers):
             map(lambda worker: worker.stop(), workers)
+            map(lambda worker: worker.join(), workers)
 
         return self.key
             
-                
+
 class KangarooWorker(object):
     
     def __init__(self, owner):
         self.owner = owner
-        self.index = None
         
     def start(self, x, N):
-        self.thread = threading.Thread(target=self._start,
-                                       args=(x,N))
-        self.thread.daemon = True
-        self.thread.start()
+        self.process = multiprocessing.Process(target=self._start,
+                                               args=(x,N))
+        self.process.start()
         
     def _start(self, x, N):
         key_x = self.owner._target_public_key()
@@ -221,16 +219,19 @@ class KangarooWorker(object):
         Y_prime = Y + self.owner.curve.invert(G_x)
         G_prime = N * self.owner.G
 
-        self.attack = StoppableECKangarooAttack(G_prime, self.owner.G_order)
+        self.attack = EllipticCurveKangarooAttack(G_prime, self.owner.G_order)
         index = self.attack.get_index(Y_prime, a=0, b=self.owner.G_order/N)
         
+        result = None
         if index is not None:
-            key = x + self.index * N
+            key = x + index * N
             if self.owner.curve.ladder(self.owner.G.x, key) == key_x:
-                self.owner.key = key
+                result = key
         
-        with self.owner.lock:        
-            self.owner.event.set()
+        self.owner.queue.put(result)
+        
+    def join(self):
+        self.process.join()
     
     def stop(self):
-        self.attack.stop()
+        self.process.terminate()
