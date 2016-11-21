@@ -1,15 +1,14 @@
 import random
 
-from Crypto.Util import number
-
 from common.hash.sha256 import SHA256
+from common.math.group import Z_n
 from common.math.invmod import ModularInverse
 from common.math.modexp import ModularExp
-from common.math.prime import RandPrime
+from common.math.prime import RandPrime, is_prime
 from common.signature import DigitalSignatureScheme
 
 
-class DSA(DigitalSignatureScheme):
+class AbstractDSA(DigitalSignatureScheme):
     
     # Based on Wikipedia pseudocode.
     
@@ -17,25 +16,25 @@ class DSA(DigitalSignatureScheme):
         DigitalSignatureScheme.__init__(self)
         self.hash_function = hash_function()
         self._init_params_from(parameters)
-        self.modexp_p = ModularExp(self.p)
+        self._init_group()
         self._init_keys()
         
     def _init_params_from(self, parameters):
         if parameters is None:
-            self.p, self.q, self.g = DSAParameterGenerator().generate()
+            self.group_param, self.q, self.g = self._param_generator().generate()
         else:
-            self.p, self.q, self.g = parameters
+            self.group_param, self.q, self.g = parameters
         
     def _init_keys(self):
         self.x = random.randint(1, self.q-1)
-        self.y = self.modexp_p.value(self.g, self.x)
-        self.public_key = (self.p, self.q, self.g, self.y)
+        self.y = self.group.pow(self.g, self.x)
+        self.public_key = (self.group_param, self.q, self.g, self.y)
         
     def sign(self, message):
         h = self.hash_function.int_hash(message)
         while True:
             k = random.randint(1, self.q-1)
-            r = self.modexp_p.value(self.g, k) % self.q
+            r = self._to_int(self.group.pow(self.g, k)) % self.q
             if r == 0:
                 continue
             k_inv = ModularInverse(self.q).value(k)
@@ -52,11 +51,46 @@ class DSA(DigitalSignatureScheme):
         w = ModularInverse(self.q).value(s)
         u1 = (h*w) % self.q
         u2 = (r*w) % self.q
-        g_u1 = self.modexp_p.value(self.g, u1)
-        y_u2 = self.modexp_p.value(self.y, u2)
-        v_mod_p = (g_u1*y_u2) % self.p
-        v = v_mod_p % self.q
+        g_u1 = self.group.pow(self.g, u1)
+        y_u2 = self.group.pow(self.y, u2)
+        v_mod_p = self.group.add(g_u1, y_u2)
+        v = self._to_int(v_mod_p) % self.q
         return r == v
+    
+    def _init_group(self):
+        raise NotImplementedError
+    
+    def _param_generator(self):
+        raise NotImplementedError
+        
+    def _to_int(self, z):
+        raise NotImplementedError    
+
+    
+class DSA(AbstractDSA):
+    
+    def _init_group(self):
+        self.group = Z_n(self.group_param)
+        
+    def _param_generator(self):
+        return DSAParameterGenerator
+        
+    def _to_int(self, z):
+        return z
+    
+    
+class ECDSA(AbstractDSA):
+    
+    def _init_group(self):
+        # group_param is just the elliptic curve.
+        self.group = self.group_param
+        
+    def _param_generator(self):
+        # TBD
+        raise NotImplementedError        
+        
+    def _to_int(self, z):
+        return z.x    
     
     
 class DSAParameterGenerator(object):
@@ -75,7 +109,7 @@ class DSAParameterGenerator(object):
         while True:
             p = i*q + 1
             # TODO: implement Miller-Rabin
-            if number.isPrime(p):
+            if is_prime(p):
                 break
             i += 1
         return p

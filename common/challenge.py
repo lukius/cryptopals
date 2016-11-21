@@ -22,6 +22,18 @@ class CryptoChallenge(object):
     def _assert_equals(self, a, b):
         if a != b:
             raise ChallengeFailure
+        
+    def _assert_not_equals(self, a, b):
+        if a == b:
+            raise ChallengeFailure        
+        
+    def _assert_true(self, a):
+        if not a:
+            raise ChallengeFailure
+        
+    def _assert_false(self, a):
+        if a:
+            raise ChallengeFailure        
     
     def _validate(self):
         value = self.value()
