@@ -64,16 +64,15 @@ class RSAKeyDuplicationAttack(object):
     def _discrete_log(self, m, s, p, factors):
         # Find e such that s^e = m mod p using the Pohlig-Hellman algorithm.
         rems = list()
-        mods = list()
         modexp = ModularExp(p)
         for q in factors:
             u = (p-1)/q
             s_u = modexp.value(s, u)
             for k in xrange(q):
-                if modexp.value(s_u,k) == modexp.value(m, u):
+                if modexp.value(s_u, k) == modexp.value(m, u):
                     rems.append(k)
-                    mods.append(q)
-        return rems, mods
+                    break
+        return rems
         
     def generate_key(self, plaintext, ciphertext):
         pad_m = self._pad(plaintext)
@@ -87,8 +86,8 @@ class RSAKeyDuplicationAttack(object):
             # should not share prime factors other than 2. And m and s should be
             # primitive roots modulo p and modulo q.
             p, p_factors, q, q_factors = self._generate_primes(m, s, bitsize)
-            rems_p, mods_p = self._discrete_log(m, s, p, p_factors)
-            rems_q, mods_q = self._discrete_log(m, s, q, q_factors)
+            rems_p = self._discrete_log(m, s, p, p_factors)
+            rems_q = self._discrete_log(m, s, q, q_factors)
 
             # Fail if remainder modulo 2 is not the same.
             if rems_p[0] != rems_q[0]:
@@ -96,7 +95,7 @@ class RSAKeyDuplicationAttack(object):
             
             # All checks passed. Now use CRT to assemble the whole thing.
             rems = rems_p + rems_q[1:]
-            mods = mods_p + mods_q[1:]
+            mods = p_factors + q_factors[1:]
             new_e, _ = ChineseRemainderTheorem().solve(rems, mods)
             new_N = p*q
             new_d = ModularInverse((p-1)*(q-1)).value(new_e)
