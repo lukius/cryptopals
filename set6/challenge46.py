@@ -1,4 +1,4 @@
-from common.attacks.rsa import RSAOracleAttack, RSAOracle
+from common.attacks.rsa.oracle import RSAOracleAttack, RSAOracle
 from common.challenge import CryptoChallenge
 from common.ciphers.pubkey.rsa import RSA
 from common.tools.base64 import Base64Decoder

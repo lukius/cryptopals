@@ -1,4 +1,4 @@
-from common.attacks.pkcs1_5 import PKCS1_5PaddingOracleAttack,\
+from common.attacks.rsa.pkcs1_5 import PKCS1_5PaddingOracleAttack,\
                                    PKCS1_5PaddingOracle
 from common.challenge import CryptoChallenge
 from common.ciphers.pubkey.rsa import RSA

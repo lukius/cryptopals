@@ -1,3 +1,5 @@
+import math
+
 from Crypto.Util import number
 
 
@@ -11,11 +13,27 @@ class RandPrime(object):
         if n is None:
             n = self.DEFAULT_BITS
         return number.getPrime(n)
+
     
+class PrimeSieve(object):
+    
+    def primes_until(self, n):
+        # Find all prime numbers up to n.
+        n = int(n)
+        if n % 2 == 1:
+            n += 1
+        nums = [True] * (n/2)
+        for k in xrange(3, int(math.sqrt(n))+1, 2):
+            if nums[k/2]:
+                for j in xrange((k*k)/2, n/2, k):
+                    nums[j] = False
+        return [2] + [2*k+1 for k in xrange(1, n/2) if nums[k]]           
+
+
 def is_prime(n):
     return number.isPrime(n, false_positive_prob=1e-10)
-    
-    
+
+
 def Primes():
     # (slow!) generator of prime numbers.
     yield 2

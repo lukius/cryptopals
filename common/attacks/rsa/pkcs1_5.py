@@ -1,4 +1,4 @@
-from common.attacks.rsa import RSAOracle, RSAOracleAttack
+from common.attacks.rsa.oracle import RSAOracle, RSAOracleAttack
 from common.tools.padders import LeftPadder, PKCS1_5Unpadder
 from common.tools.misc import ByteSize
 

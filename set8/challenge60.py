@@ -89,6 +89,15 @@ class Set8Challenge60(CryptoChallenge):
         x = self.m_curve.ladder(m_P.x, 25)
         
         self._assert_equals(m_Q.x, x)
+        
+    def _test_insecure_twist_attack(self):
+        # WARNING: this may take a long time to run! Even four or five hours.
+        # Also, occasionally the kangaroo attack might fail to find the index
+        # to compute the secret key.
+        attack = CustomInsecureTwistAttack(target=self.bob, curve=self.m_curve,
+                                           order=self.o, G=self.m_G, G_order=self.d)
+        key_recovered = attack.recover_key()
+        self._assert_equals(self.bob.exp, key_recovered)        
     
     def _validate(self):
         # 1. Check Montgomery EC implementation.
@@ -98,7 +107,4 @@ class Set8Challenge60(CryptoChallenge):
         self._test_ladder()
         
         # 3. Recover key through the quadratic twist of the curve.
-        attack = CustomInsecureTwistAttack(target=self.bob, curve=self.m_curve,
-                                           order=self.o, G=self.m_G, G_order=self.d)
-        key_recovered = attack.recover_key()
-        self._assert_equals(self.bob.exp, key_recovered)        
+        self._test_insecure_twist_attack()
