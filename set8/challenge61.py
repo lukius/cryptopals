@@ -2,11 +2,12 @@ from common.attacks.rsa.key_duplication import RSASignatureKeySelectionAttack,\
                                                RSAKeyDuplicationAttack
 from common.attacks.signature.ecdsa import ECDSAKeySelectionAttack
 from common.challenge import CryptoChallenge
-from common.math.ecc import WeierstrassEllipticCurve
 from common.signature.dsa import ECDSA
 from common.ciphers.pubkey.rsa import RSA
 from common.math.modexp import ModularExp
 from common.signature.rsa import RSADigitalSignature
+
+from misc import Set8EllipticCurve
 
 
 class ECDSAValidator(ECDSA):
@@ -50,16 +51,11 @@ class RSASignatureValidator(RSADigitalSignature):
     
 class Set8Challenge61(CryptoChallenge):
     
-    p = 233970423115425145524320034830162017933
-    curve = WeierstrassEllipticCurve(-95051, 210, p)
-    G = curve.point(182, 85518893674295321206118380980485522083)
-    d = 29246302889428143187362802287225875743
-    
     message = 'estamos en la B.'
     
     def __init__(self):
         CryptoChallenge.__init__(self)
-        self.ecdsa = ECDSAValidator(parameters=(self.curve, self.d, self.G))
+        self.ecdsa = ECDSAValidator(parameters=Set8EllipticCurve.ECDSA_params())
         self.rsa = RSASignatureValidator()
         
     def _test_ecdsa(self):

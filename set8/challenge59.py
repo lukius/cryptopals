@@ -4,6 +4,8 @@ from common.key_exchange.diffie_hellman import EllipticCurveDiffieHellman,\
                                                UnsafeEllipticCurveDiffieHellman
 from common.attacks.ecc import InvalidCurveAttack
 
+from misc import Set8EllipticCurve
+
 
 class CustomInvalidCurveAttack(InvalidCurveAttack):
 
@@ -16,17 +18,13 @@ class CustomInvalidCurveAttack(InvalidCurveAttack):
 
 
 class Set8Challenge59(CryptoChallenge):
-
-    # Elliptic curve y^2 = x^3 + ax + b
-    #  * Over Z_p
-    #  * #E(Z_p) = o.
-    #  * Also, point g on E(Z_p) has order d. 
-    a = -95051
-    b = 11279326    
-    p = 233970423115425145524320034830162017933
-    g = (182, 85518893674295321206118380980485522083)
-    d = 29246302889428143187362802287225875743
-    o = 233970423115425145498902418297807005944
+    
+    p = Set8EllipticCurve.p
+    G = Set8EllipticCurve.G
+    d = Set8EllipticCurve.d
+    
+    a = Set8EllipticCurve.a
+    b = Set8EllipticCurve.b
     
     # Invalid curves and their orders.
     E1 = WeierstrassEllipticCurve(-95051, 210, p)
@@ -40,8 +38,7 @@ class Set8Challenge59(CryptoChallenge):
     
     def __init__(self):
         CryptoChallenge.__init__(self)
-        self.curve = WeierstrassEllipticCurve(self.a, self.b, self.p)
-        self.G = self.curve.point(self.g)
+        self.curve = Set8EllipticCurve.curve()
         self.alice = EllipticCurveDiffieHellman(self.curve, g=self.G,
                                                 g_order=self.d)
         self.bob = UnsafeEllipticCurveDiffieHellman(self.curve, g=self.G,

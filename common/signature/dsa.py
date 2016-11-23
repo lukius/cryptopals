@@ -30,10 +30,13 @@ class AbstractDSA(DigitalSignatureScheme):
         self.y = self.group.pow(self.g, self.x)
         self.public_key = (self.group_param, self.q, self.g, self.y)
         
+    def _get_nonce(self):
+        return random.randint(1, self.q-1)
+        
     def sign(self, message):
         h = self.hash_function.int_hash(message)
         while True:
-            k = random.randint(1, self.q-1)
+            k = self._get_nonce()
             r = self._to_int(self.group.pow(self.g, k)) % self.q
             if r == 0:
                 continue
