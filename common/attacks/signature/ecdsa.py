@@ -1,5 +1,6 @@
 import random
 
+from collections import defaultdict
 from fractions import Fraction
 
 from common.math.invmod import ModularInverse
@@ -37,12 +38,13 @@ class ECDSAKeySelectionAttack(object):
     
 class BiasedNonceECDSAKeyRecoveryAttack(object):
     
-    N_MESSAGES = 17
+    N_MESSAGES = 20
     
     def __init__(self, ecdsa, mask_n):
         self.ecdsa = ecdsa
         self.mask_n = mask_n
         self.modinv = ModularInverse(self.ecdsa.q)
+        self.s_u, self.s_t = self._get_sentinels()
         
     def _rand_message(self):
         return RandomByteGenerator().value(30)
@@ -64,26 +66,38 @@ class BiasedNonceECDSAKeyRecoveryAttack(object):
         
         return u, t
     
+    def _assemble_lattice_basis(self):
+        u_vector = Vector(self.N_MESSAGES+2)
+        t_vector = Vector(self.N_MESSAGES+2)
+        u_vector[-1] = self.s_u
+        t_vector[-2] = self.s_t
+        basis = [u_vector, t_vector]
+        for i in xrange(self.N_MESSAGES):
+            message = self._rand_message()
+            u, t = self._get_u_and_t(message)
+            u_vector[i] = u
+            t_vector[i] = t
+            v = Vector(self.N_MESSAGES+2)
+            v[i] = self.ecdsa.q
+            basis.append(v)
+        return basis
+    
     def recover_key(self):
+        # Idea:
+        #   * Sign N_MESSAGES random messages and compute u and t values.
+        #   * Assemble the lattice basis with vectors of dimension N_MESSAGES+2.
+        #   * Compute the reduced basis.
+        #   * Check the reduced vectors and take note of the candidate keys.
+        #   * If any candidate key already appeared more than once, return it.
+        #   * Otherwise, start over signing new messages.    
+        candidates = defaultdict(lambda: 0)
+        LLL = LatticeBasisReduction()
         while True:
-            u_vector = Vector(self.N_MESSAGES+2)
-            t_vector = Vector(self.N_MESSAGES+2)
-            s_u, s_t = self._get_sentinels()
-            u_vector[-1] = s_u
-            t_vector[-2] = s_t
-            basis = [u_vector, t_vector]
-            for i in xrange(self.N_MESSAGES):
-                message = self._rand_message()
-                u, t = self._get_u_and_t(message)
-                u_vector[i] = u
-                t_vector[i] = t
-                v = Vector(self.N_MESSAGES+2)
-                v[i] = self.ecdsa.q
-                basis.append(v)
-            print 'reducing'
-            reduced_basis = LatticeBasisReduction().reduce(basis)
-            print 'done'
+            basis = self._assemble_lattice_basis()
+            reduced_basis = LLL.reduce(basis)
             for v in reduced_basis:
-                if v[-1] == s_u:
-                    print 'found!!', v
-                    return v[-2] * (-2**self.mask_n)
+                if v[-1] == self.s_u:
+                    candidate_key = (v[-2] * (-2**self.mask_n)) % self.ecdsa.q
+                    candidates[candidate_key] += 1
+                    if candidates[candidate_key] > 1:
+                        return candidate_key

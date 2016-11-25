@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-#define LLL_DELTA 0.99
+#define LLL_DELTA 0.9999
 
 
 basis_q GS_orthogonalize(const basis_q& B)
@@ -99,10 +99,5 @@ void LLL_basis_reduction(basis_q &B)
 
 			k = std::max(k-1, (ssize_t)1);
 		}
-
-		/*if(k < B.size()){
-		for(size_t r = 0; r < B[k].size(); ++r)
-			std::cout << B[k][r] << " ";
-		std::cout << std::endl;}*/
 	}
 }

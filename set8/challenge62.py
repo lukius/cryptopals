@@ -1,17 +1,17 @@
 from fractions import Fraction
 
-from common.challenge import CryptoChallenge
+from common.attacks.signature.ecdsa import BiasedNonceECDSAKeyRecoveryAttack
+from common.challenge   import CryptoChallenge
 from common.math.linalg import Vector, BasisOrthogonalizer,\
                                LatticeBasisReduction
 from common.signature.dsa import ECDSA
 
 from misc import Set8EllipticCurve
-from common.attacks.signature.ecdsa import BiasedNonceECDSAKeyRecoveryAttack
 
 
 class BiasedNonceECDSA(ECDSA):
     
-    N_SHIFT = 3
+    N_SHIFT = 8
     
     def _get_nonce(self):
         k = ECDSA._get_nonce(self)
@@ -36,7 +36,6 @@ class Set8Challenge62(CryptoChallenge):
     
     def _test_orthogonalization(self):
         Q = BasisOrthogonalizer().orthogonalize(self.BASIS)
-        
         for i,v in enumerate(Q):
             for u in Q[i+1:]:
                 # Dot product should be zero.
