@@ -7,7 +7,7 @@ H_FILES = $(wildcard $(SRC_DIR)/*.h)
 
 CXXFLAGS  = -Wall -shared -fPIC 
 INCLUDES  = -I/usr/include/python2.7/
-LIBS	  = -Lbin -lboost_python -lgmp -lgmpxx
+LIBS	  = -Lbin -l:libboost_python.so.1.61.0 -lgmp -lgmpxx
 
 all: $(MODULE)
 
