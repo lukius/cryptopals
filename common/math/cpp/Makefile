@@ -5,10 +5,8 @@ OUT_DIR = ..
 CPP_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 H_FILES = $(wildcard $(SRC_DIR)/*.h)
 
-BOOST_PATH = /home/lucio/temp/boost_1_62_0
-
 CXXFLAGS  = -Wall -shared -fPIC 
-INCLUDES  = -I/usr/include/python2.7/ -I$(BOOST_PATH)
+INCLUDES  = -I/usr/include/python2.7/
 LIBS	  = -Lbin -lboost_python -lgmp -lgmpxx
 
 all: $(MODULE)

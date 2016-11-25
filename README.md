@@ -3,6 +3,7 @@
 #### Requirements
  * Some of them use the [PyCrypto](https://www.dlitz.net/software/pycrypto/) library.
  * Challenge 62 (set 8) uses [GMP](https://gmplib.org/) and a [Boost.Python](http://www.boost.org/doc/libs/1_62_0/libs/python/doc/html/index.html) module. Even though it is already compiled here, you may need to install these for compiling it for other platforms.
+   * Copy libraries in `common/math/cpp/bin/` to the system library path before running the challenge.
 
 #### Usage
  * The `run.py` script runs every challenge passed as command-line argument.
