@@ -1,4 +1,5 @@
 MODULE  = cxx_linalg
+
 SRC_DIR = src
 OUT_DIR = ..
 CPP_FILES = $(wildcard $(SRC_DIR)/*.cpp)
@@ -8,7 +9,7 @@ BOOST_PATH = /home/lucio/temp/boost_1_62_0
 
 CXXFLAGS  = -Wall -shared -fPIC 
 INCLUDES  = -I/usr/include/python2.7/ -I$(BOOST_PATH)
-LIBS	  = -Lbin -Wl,-rpath,bin -lboost_python -lgmp -lgmpxx
+LIBS	  = -Lbin -lboost_python -lgmp -lgmpxx
 
 all: $(MODULE)
 
