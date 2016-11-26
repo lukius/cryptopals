@@ -3,12 +3,12 @@ import random
 from common.math.group import AbstractGroup
 
 
-class GF2(AbstractGroup):
+class GF2k(AbstractGroup):
     
-    def __init__(self, k, mod_str):
+    def __init__(self, k, modulus):
         AbstractGroup.__init__(self)
         self.k = k
-        self.mod, self.mod_deg = self._parse_poly(mod_str)
+        self.mod, self.mod_deg = self._parse_poly(modulus)
         
     def _get_deg(self, n):
         if n <= 1:
@@ -90,7 +90,7 @@ class GF2(AbstractGroup):
 
         return GF2kElement(self, p_n)
     
-    def div_rem(self, a, b):
+    def divmod(self, a, b):
         if b == 0:
             raise ZeroDivisionError
             
@@ -110,7 +110,10 @@ class GF2(AbstractGroup):
         return q, r
     
     def div(self, a, b):
-        return self.div_rem(a, b)[0]        
+        return self.divmod(a, b)[0]
+    
+    def rem(self, a, b): 
+        return self.divmod(a, b)[1]
     
     def invert(self, a):
         return self.pow(a, 2**self.k - 2)
@@ -156,6 +159,12 @@ class GF2kElement(object):
     
     def __div__(self, elem):
         return self.field.div(self, elem)
+    
+    def __divmod__(self, elem):
+        return self.field.divmod(self, elem)
+    
+    def __mod__(self, elem):
+        return self.field.rem(self, elem)
     
     def __pow__(self, k):
         return self.field.pow(self, k)
