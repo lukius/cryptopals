@@ -1,15 +1,11 @@
 import random
 
 from common.math.group import AbstractGroup
+from common.math.gcd import ExtendedGCD
 
 
-class GF2k(AbstractGroup):
+class GF2PolyRing(object):
     
-    def __init__(self, k, modulus):
-        AbstractGroup.__init__(self)
-        self.k = k
-        self.mod, self.mod_deg = self._parse_poly(modulus)
-        
     def _get_deg(self, n):
         if n <= 1:
             deg = n-1
@@ -53,24 +49,23 @@ class GF2k(AbstractGroup):
         except:
             raise Exception('bad GF(2)[X] element format.')
         
-    def rand_element(self):
-        n = random.randint(0, 2**self.k - 1)
-        return GF2kElement(self, n)
-
     def element(self, obj):
         if isinstance(obj, (int,long)):
             n = obj
             deg = None
-            if n < 0 or n >= 2**self.k:
-                raise Exception('bad GF(2^%d) element format.' % self.k)
             
         elif isinstance(obj, basestring):
             n, deg = self._parse_poly(obj)
             
-        return GF2kElement(self, n, deg)
+        return GF2Poly(self, n, deg)
+
+    def rand_element(self):
+        n = random.randint(0, 1<<128)
+        return self.element(n)
     
     def add(self, a, b):
-        # Is actually 'mul', but this implements the abstract group interface.
+        # Is actually 'mul', but the GF2k subclass implements the abstract
+        # group interface.
         p_n = 0
         a_n = a.n
         b_n = b.n
@@ -84,11 +79,7 @@ class GF2k(AbstractGroup):
             b_n <<= 1
             b_deg += 1
 
-            if b_deg == self.mod_deg:
-                b_n ^= self.mod
-                b_deg = self._get_deg(b_n)
-
-        return GF2kElement(self, p_n)
+        return GF2Poly(self, p_n)    
     
     def divmod(self, a, b):
         if b == 0:
@@ -104,8 +95,8 @@ class GF2k(AbstractGroup):
             r_n ^= b_n << d
             r_deg = self._get_deg(r_n)
 
-        q = GF2kElement(self, q_n)
-        r = GF2kElement(self, r_n, r_deg)
+        q = GF2Poly(self, q_n)
+        r = GF2Poly(self, r_n, r_deg)
         
         return q, r
     
@@ -113,32 +104,74 @@ class GF2k(AbstractGroup):
         return self.divmod(a, b)[0]
     
     def rem(self, a, b): 
-        return self.divmod(a, b)[1]
+        return self.divmod(a, b)[1]    
+
+    def __repr__(self):
+        return 'GF(2)[X]'
+
+
+class GF2k(GF2PolyRing, AbstractGroup):
+    
+    def __init__(self, k, modulus):
+        GF2PolyRing.__init__(self)
+        AbstractGroup.__init__(self)
+        self.k = k
+        mod, mod_deg = self._parse_poly(modulus)
+        self.mod = GF2Poly(self, mod, mod_deg)
+
+    def element(self, obj):
+        p = GF2PolyRing.element(self, obj)
+        return self.rem(p, self.mod)
+
+    # Modular multiplication    
+    def add(self, a, b):
+        p_n = 0
+        a_n = a.n
+        b_n = b.n
+        b_deg = b.deg
+
+        while a_n > 0:
+            if a_n & 1:
+                p_n ^= b_n
+
+            a_n >>= 1
+            b_n <<= 1
+            b_deg += 1
+
+            if b_deg == self.mod.deg:
+                b_n ^= self.mod.n
+                b_deg = self._get_deg(b_n)
+
+        return GF2Poly(self, p_n)
     
     def invert(self, a):
-        return self.pow(a, 2**self.k - 2)
+        p, _, gcd = ExtendedGCD().value(a, self.mod)
+        if gcd != 1:
+            raise Exception('%r not invertible in %r --use irreducible modulus!'%\
+                            (a, self))
+        return p
     
     def identity(self):
         return self.element(1)
     
     def __repr__(self):
-        return 'GF(2^%d)' % self.k
+        return 'GF(2^%d)/%r' % (self.k, self.mod)
     
 
-class GF2kElement(object):
+class GF2Poly(object):
     
-    def __init__(self, field, n, deg=None):
-        self.field = field
+    def __init__(self, ring, n, deg=None):
+        self.ring = ring
         self.n = n
-        self.deg = deg or self.field._get_deg(n)
+        self.deg = deg or self.ring._get_deg(n)
         
     def degree(self):
         return self.deg
         
     def __add__(self, elem):
         if isinstance(elem, int) and elem in [0,1]:
-            elem = self.field.element(elem)
-        return self.field.element(self.n ^ elem.n)
+            elem = self.ring.element(elem)
+        return self.ring.element(self.n ^ elem.n)
 
     def __sub__(self, elem):
         return self.__add__(elem)
@@ -151,26 +184,26 @@ class GF2kElement(object):
     
     def __mul__(self, elem):
         if isinstance(elem, int) and elem in [0,1]:
-            elem = self.field.element(elem)
-        return self.field.add(self, elem)
+            elem = self.ring.element(elem)
+        return self.ring.add(self, elem)
     
     def __rmul__(self, elem):
         return self.__mul__(elem)
     
     def __div__(self, elem):
-        return self.field.div(self, elem)
+        return self.ring.div(self, elem)
     
     def __divmod__(self, elem):
-        return self.field.divmod(self, elem)
+        return self.ring.divmod(self, elem)
     
     def __mod__(self, elem):
-        return self.field.rem(self, elem)
+        return self.ring.rem(self, elem)
     
     def __pow__(self, k):
-        return self.field.pow(self, k)
+        return self.ring.pow(self, k)
     
     def invert(self):
-        return self.field.invert(self)
+        return self.ring.invert(self)
     
     def __eq__(self, elem):
         if elem == 0:
