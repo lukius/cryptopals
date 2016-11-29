@@ -1,6 +1,7 @@
 from modes import CTR
 
 from common.tools.endianness import LittleEndian
+from common.tools.converters import IntToBytes
 
 
 class CTRModeCounter(object):
@@ -30,3 +31,17 @@ class NonceBasedCounter(CTRModeCounter):
         nonce = LittleEndian.from_int(self.nonce, size=size).value()
         index = LittleEndian.from_int(index, size=size).value()
         return nonce + index
+    
+    
+class GCMCounter(CTRModeCounter):
+    
+    def __init__(self, iv, block_size):
+        CTRModeCounter.__init__(self, block_size)
+        self.iv = iv
+        self.mask = 0xffffffff
+
+    def count(self, index):
+        lsb = (index + (self.iv & self.mask)) % (self.mask + 1) 
+        msb = self.iv >> 32
+        count = (msb << 32) + lsb
+        return IntToBytes(count).value()

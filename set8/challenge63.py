@@ -1,6 +1,9 @@
 from common.challenge import CryptoChallenge
 from common.math.poly import GF2k
 from common.math.gcd import ExtendedGCD
+from common.ciphers.block.aes import AES
+from common.tools.misc import RandomByteGenerator
+from common.ciphers.block.modes import GCM
 
 
 class Set8Challenge63(CryptoChallenge):
@@ -47,8 +50,30 @@ class Set8Challenge63(CryptoChallenge):
         self._assert_equals(gcd, u*a + v*b)
     
     def _test_GCM(self):
-        pass
+        plaintext = 'The tag length t must be fixed for any fixed value of the key'
+        auth_data = 'A tag length of 128 bits should be used whenever possible'
+        iv = RandomByteGenerator().value(16)
+        
+        key = RandomByteGenerator().value(16)
+        aes = AES(key)
+        
+        ciphertext, tag = aes.encrypt((plaintext, auth_data), mode=GCM(iv))
+        result = aes.decrypt((ciphertext, auth_data, tag), mode=GCM(iv))
+        self._assert_equals(True, result[0])
+        self._assert_equals(plaintext, result[1].bytes())
     
+        result = aes.decrypt((ciphertext, auth_data, tag+'x'), mode=GCM(iv))
+        self._assert_equals(False, result[0])
+        
+        result = aes.decrypt((ciphertext, auth_data+'x', tag), mode=GCM(iv))
+        self._assert_equals(False, result[0])
+        
+        iv = RandomByteGenerator().value(204)
+        ciphertext, tag = aes.encrypt((plaintext, auth_data), mode=GCM(iv))
+        result = aes.decrypt((ciphertext, auth_data, tag), mode=GCM(iv))
+        self._assert_equals(True, result[0])
+        self._assert_equals(plaintext, result[1].bytes())
+        
     def _test_factorization(self):
         pass
     

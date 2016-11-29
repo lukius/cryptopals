@@ -1,5 +1,8 @@
+from common.math.poly import GF2k
 from common.tools.blockstring import BlockString
-from common.tools.padders import PKCS7Padder, PKCS7Unpadder
+from common.tools.converters import IntToBytes, BytesToInt
+from common.tools.padders import PKCS7Padder, PKCS7Unpadder,\
+                                 RightPadder
 from common.tools.xor import ByteXOR
 
 
@@ -30,10 +33,10 @@ class BlockCipherMode(object):
         return reduce(lambda _result, block: _result + callback(*block),
                       enumerate(self.block_string), result)
 
-    def _block_encryption_callback(self, message, cipher):
+    def _block_encryption_callback(self, index, block):
         raise NotImplementedError
     
-    def _block_decryption_callback(self, message, cipher):
+    def _block_decryption_callback(self, index, block):
         raise NotImplementedError
 
     def encrypt_with_cipher(self, plaintext, cipher):
@@ -131,3 +134,79 @@ class RandomAccessCTR(CTR):
     def _xor(self, key, block):
         self.keystream += key
         return CTR._xor(self, key, block)
+    
+    
+class GCM(CTR):
+    
+    def __init__(self, iv, block_size=None):
+        CTR.__init__(self, block_size=block_size)
+        self.iv = iv
+        self.len_iv = len(iv) * 8
+        self.field = GF2k(128, modulus='x^128 + x^7 + x^2 + x + 1')
+        
+    def _to_field_elem(self, block):
+        int_block = BytesToInt(block).value()
+        return self.field.element(int_block)
+    
+    def _from_field_elem(self, X):
+        return IntToBytes(X.n).value(size=self.block_size)
+        
+    def _init_nonce(self, cipher):
+        self.H = self._ghash_subkey(cipher)
+        if self.len_iv == 96:
+            self.y0 = self.iv + IntToBytes(1).value(4) 
+        else:
+            Y = self._ghash(cipher, str(), self.iv)
+            self.y0 = self._from_field_elem(Y)
+            
+    def _init_counter(self):
+        from common.ciphers.block.counter import GCMCounter
+        y0 = BytesToInt(self.y0).value()
+        self.counter = GCMCounter(y0, block_size=self.block_size)
+        
+    def _ghash_subkey(self, cipher):
+        return cipher.encrypt('\x00' * self.block_size).bytes()
+        
+    def _ghash(self, cipher, auth_data, ciphertext):
+        H = self._to_field_elem(self.H)
+        X = self.field.element(0)
+        len_A = len_C = 0
+        for block in BlockString(auth_data):
+            block = RightPadder(block).value(16, char='\x00')
+            A = self._to_field_elem(block)
+            X = (X + A) * H
+            len_A += len(block)*8
+        for block in ciphertext:
+            block = RightPadder(block).value(16, char='\x00')
+            A = self._to_field_elem(block)
+            X = (X + A) * H
+            len_C += len(block)*8
+        L = self.field.element((len_A << 64) + len_C)
+        X = (X + L) * H
+        return X
+    
+    def _tag(self, cipher, G):
+        S = self._to_field_elem(cipher.encrypt(self.y0).bytes())
+        return self._from_field_elem(G + S)
+        
+    def encrypt_with_cipher(self, data, cipher):
+        self._init_nonce(cipher)
+        self._init_counter()
+        plaintext, auth_data = data
+        ciphertext = CTR.encrypt_with_cipher(self, plaintext, cipher)
+        G = self._ghash(cipher, auth_data, ciphertext)
+        tag = self._tag(cipher, G)
+        return ciphertext, tag
+    
+    def decrypt_with_cipher(self, data, cipher):
+        self._init_nonce(cipher)
+        self._init_counter()
+        ciphertext, auth_data, input_tag = data
+        G = self._ghash(cipher, auth_data, ciphertext)
+        tag = self._tag(cipher, G)
+        if tag == input_tag:
+            plaintext = CTR.decrypt_with_cipher(self, ciphertext, cipher)
+            result = (True, plaintext)
+        else:
+            result = (False, str())
+        return result

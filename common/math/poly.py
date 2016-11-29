@@ -155,7 +155,7 @@ class GF2k(GF2PolyRing, AbstractGroup):
         return self.element(1)
     
     def __repr__(self):
-        return 'GF(2^%d)/%r' % (self.k, self.mod)
+        return 'GF(2^%d) (with modulus %r)' % (self.k, self.mod)
     
 
 class GF2Poly(object):
