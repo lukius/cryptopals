@@ -5,7 +5,8 @@ from common.ciphers.block.aes import AES
 from common.tools.misc import RandomByteGenerator
 from common.ciphers.block.modes import GCM
 from common.math.poly_factor import SquarefreeFactorization,\
-    DistinctDegreeFactorization
+                                    DistinctDegreeFactorization,\
+                                    EqualDegreeFactorization
 
 
 class Set8Challenge63(CryptoChallenge):
@@ -118,6 +119,20 @@ class Set8Challenge63(CryptoChallenge):
         for q, k in factors:
             self._assert_in(k, deg.keys())
             self._assert_equals(q, deg[k])
+
+    def _test_equal_degree_factorization(self):
+        GF2_X = GF2PolyRing()
+        x = GF2_X.x()
+        
+        a = x**4 + x + 1
+        b = x**4 + x**3 + 1
+        c = x**4 + x**3 + x**2 + x + 1
+        p = a*b*c
+        
+        factors = EqualDegreeFactorization().factor(p, 4)
+        self._assert_equals(3, len(factors))
+        for q in factors:
+            self._assert_in(q, [a,b,c])
     
     def _test_key_recovery(self): 
         pass
@@ -134,6 +149,9 @@ class Set8Challenge63(CryptoChallenge):
 
         # 4. Test distinct degree factorization over GF(2)[X].
         self._test_distinct_degree_factorization()
+        
+        # 5. Test equal degree factorization over GF(2)[X].
+        self._test_equal_degree_factorization()
     
         # 4. Perform key recovery attack on GCM.
         self._test_key_recovery()

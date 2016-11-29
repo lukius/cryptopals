@@ -215,7 +215,10 @@ class GF2Poly(object):
         return GF2Poly(self.ring, self.n, self.deg)
     
     def x2_to_x(self):
-        return self.ring.x2_to_x(self)    
+        return self.ring.x2_to_x(self)
+    
+    def to_monic(self):
+        return self.clone()
         
     def __add__(self, elem):
         if isinstance(elem, int) and elem in [0,1]:

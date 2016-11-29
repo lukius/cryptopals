@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from common.math.gcd import GCD
 
 
@@ -53,4 +55,44 @@ class DistinctDegreeFactorization(object):
         if not factors:
             factors = [(f,1)]
             
+        return factors
+    
+    
+class EqualDegreeFactorization(object):
+    
+    def factor(self, f, d):
+        if f.degree() == d:
+            return [f]
+        x = f.ring.x()
+        while True:
+            T = f.ring.rand_element() % (x**(2*d))
+            W = T
+            for _ in xrange(d-1):
+                T = T**2 % f
+                W += T
+            g = GCD().value(f, W)
+            if g != 1 and g != f:
+                f1 = g
+                f2 = f / g
+                return self.factor(f1, d) + self.factor(f2, d)
+            
+            
+class GF2kPolyFactorization(object):
+    
+    def factor(self, f):
+        f = f.to_monic()
+        factors = defaultdict(lambda: 0)
+        sqf_factors = SquarefreeFactorization().factor(f)
+        for g,k in sqf_factors:
+            if g in factors:
+                factors[g] += k
+                continue
+            dd_factors = DistinctDegreeFactorization().factor(g)
+            for h,d in dd_factors:
+                if h in factors:
+                    factors[h] += k
+                    continue
+                ed_factors = EqualDegreeFactorization().factor(h,d)
+                for p in ed_factors:
+                    factors[p] += k
         return factors
