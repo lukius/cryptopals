@@ -33,7 +33,13 @@ class CryptoChallenge(object):
         
     def _assert_false(self, a):
         if a:
-            raise ChallengeFailure        
+            raise ChallengeFailure
+        
+    def _assert_in(self, a, values):
+        for value in values:
+            if a == value:
+                return
+        raise ChallengeFailure    
     
     def _validate(self):
         value = self.value()

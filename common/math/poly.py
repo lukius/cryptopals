@@ -49,6 +49,16 @@ class GF2PolyRing(object):
         except:
             raise Exception('bad GF(2)[X] element format.')
         
+    def pow(self, a, n):
+        # TODO: refactor. Cannot inherit form abstact group.
+        result = self.element(1)
+        while n > 0:
+            if n % 2 == 1:
+                result = self.add(result, a)
+            n >>= 1
+            a = self.add(a, a)
+        return result        
+        
     def element(self, obj):
         if isinstance(obj, (int,long)):
             n = obj
@@ -104,8 +114,38 @@ class GF2PolyRing(object):
         return self.divmod(a, b)[0]
     
     def rem(self, a, b): 
-        return self.divmod(a, b)[1]    
-
+        return self.divmod(a, b)[1]
+    
+    def derivative(self, a):
+        n = a.n
+        i = 0
+        m = 0
+        k = 0
+        while n > 0:
+            if i % 2 == 1 and n & 1:
+                m |= k
+            n >>= 1
+            i += 1
+            k = k<<1 if k > 0 else 1
+        return self.element(m)
+    
+    def x2_to_x(self, a):
+        n = a.n
+        i = 0
+        m = 0
+        while n > 0:
+            if n & 1:
+                if i == 0:
+                    m |= 1
+                else:
+                    m |= 1 << (i/2)
+            n >>= 1
+            i += 1
+        return self.element(m)
+    
+    def x(self):
+        return self.element('X')
+    
     def __repr__(self):
         return 'GF(2)[X]'
 
@@ -167,6 +207,15 @@ class GF2Poly(object):
         
     def degree(self):
         return self.deg
+    
+    def derivative(self):
+        return self.ring.derivative(self)
+    
+    def clone(self):
+        return GF2Poly(self.ring, self.n, self.deg)
+    
+    def x2_to_x(self):
+        return self.ring.x2_to_x(self)    
         
     def __add__(self, elem):
         if isinstance(elem, int) and elem in [0,1]:

@@ -1,9 +1,11 @@
 from common.challenge import CryptoChallenge
-from common.math.poly import GF2k
+from common.math.poly import GF2k, GF2PolyRing
 from common.math.gcd import ExtendedGCD
 from common.ciphers.block.aes import AES
 from common.tools.misc import RandomByteGenerator
 from common.ciphers.block.modes import GCM
+from common.math.poly_factor import SquarefreeFactorization,\
+    DistinctDegreeFactorization
 
 
 class Set8Challenge63(CryptoChallenge):
@@ -74,8 +76,48 @@ class Set8Challenge63(CryptoChallenge):
         self._assert_equals(True, result[0])
         self._assert_equals(plaintext, result[1].bytes())
         
-    def _test_factorization(self):
-        pass
+    def _test_square_free_factorization(self):
+        GF2_X = GF2PolyRing()
+        x = GF2_X.x()
+        
+        a = x**2 + x + 1
+        b = x + 1
+        p = a**4 * b
+         
+        factors = SquarefreeFactorization().factor(p)
+        self._assert_equals(2, len(factors))
+        for (q, k) in factors:
+            self._assert_in(q, [a,b])
+            if q == a:
+                self._assert_equals(4, k)
+            else:
+                self._assert_equals(1, k)
+                
+        a = x**50 + x**43 + x + 1
+        b = x
+        c = x**2 + 1
+        p = a**6 * b**3 * c**2
+        factors = SquarefreeFactorization().factor(p)
+
+        r = 1
+        for q, k in factors:
+            r *= q**k
+        self._assert_equals(p, r)
+        
+    def _test_distinct_degree_factorization(self):
+        GF2_X = GF2PolyRing()
+        x = GF2_X.x()
+        
+        deg_1 = x*(x+1)
+        deg_3 = (x**3 + x**2 + 1)*(x**3 + x + 1)
+        deg_4 = (x**4 + x + 1)*(x**4 + x**3 + 1)*(x**4 + x**3 + x**2 + x + 1)
+        p = deg_1 * deg_3 * deg_4
+        deg = {1 : deg_1, 3 : deg_3, 4 : deg_4}
+        
+        factors = DistinctDegreeFactorization().factor(p)
+        for q, k in factors:
+            self._assert_in(k, deg.keys())
+            self._assert_equals(q, deg[k])
     
     def _test_key_recovery(self): 
         pass
@@ -87,8 +129,11 @@ class Set8Challenge63(CryptoChallenge):
         # 2. Test GCM implementation.
         self._test_GCM()
     
-        # 3. Test polynomial factorization.
-        self._test_factorization()
+        # 3. Test square-free factorization over GF(2)[X].
+        self._test_square_free_factorization()
+
+        # 4. Test distinct degree factorization over GF(2)[X].
+        self._test_distinct_degree_factorization()
     
         # 4. Perform key recovery attack on GCM.
         self._test_key_recovery()
