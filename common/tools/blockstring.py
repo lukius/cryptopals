@@ -68,6 +68,10 @@ class BlockString(object):
         result = self.string + str(string)
         return BlockString(result, self._block_size)
     
+    def __radd__(self, string):
+        result = str(string) + self.string
+        return BlockString(result, self._block_size)
+    
     def __iter__(self):
         self.current_block_index = 0
         return self

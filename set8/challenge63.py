@@ -1,3 +1,4 @@
+from common.attacks.gcm.repeated_nonce import GCMAuthSubkeyRecoveryAttack
 from common.challenge import CryptoChallenge
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import GCM
@@ -7,6 +8,7 @@ from common.math.poly_factor import SquarefreeFactorization,\
                                     DistinctDegreeFactorization,\
                                     EqualDegreeFactorization,\
                                     GF2kPolyFactorization
+from common.tools.converters import BytesToInt
 from common.tools.misc import RandomByteGenerator
 
 
@@ -157,7 +159,25 @@ class Set8Challenge63(CryptoChallenge):
         self._assert_equals(p1, p.to_monic())
     
     def _test_key_recovery(self): 
-        pass
+        p1 = 'The tag length t must be fixed for any fixed value of the key'
+        a1 = 'A tag length of 128 bits should be used whenever possible'
+        
+        p2 = 'frobenius automorphism'
+        a2 = 'asdfdfdsa, asdffdsa... yeah, yeah'
+        
+        iv = RandomByteGenerator().value(16)
+        
+        key = RandomByteGenerator().value(16)
+        aes = AES(key)
+        
+        c1, t1 = aes.encrypt((p1, a1), mode=GCM(iv))
+        gcm = GCM(iv)
+        c2, t2 = aes.encrypt((p2, a2), mode=gcm)
+        
+        attack = GCMAuthSubkeyRecoveryAttack()
+        key = attack.recover_key((c1,a1,t1), (c2,a2,t2))
+
+        self._assert_equals(gcm.H, key)
     
     def _validate(self):
         # 1. Test GF(2^k) implementation.

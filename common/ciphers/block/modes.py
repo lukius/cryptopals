@@ -148,13 +148,16 @@ class GCM(CTR):
         int_block = BytesToInt(block).value()
         return self.field.element(int_block)
     
+    def _pad(self, block):
+        return RightPadder(block).value(16, char='\x00')    
+    
     def _from_field_elem(self, X):
         return IntToBytes(X.n).value(size=self.block_size)
         
     def _init_nonce(self, cipher):
         self.H = self._ghash_subkey(cipher)
         if self.len_iv == 96:
-            self.y0 = self.iv + IntToBytes(1).value(4) 
+            self.y0 = self.iv + IntToBytes(1).value(4)
         else:
             Y = self._ghash(cipher, str(), self.iv)
             self.y0 = self._from_field_elem(Y)
@@ -165,20 +168,20 @@ class GCM(CTR):
         self.counter = GCMCounter(y0, block_size=self.block_size)
         
     def _ghash_subkey(self, cipher):
-        return cipher.encrypt('\x00' * self.block_size).bytes()
+        return cipher.encrypt('\x00' * self.block_size, mode=CTR()).bytes()
         
     def _ghash(self, cipher, auth_data, ciphertext):
         H = self._to_field_elem(self.H)
         X = self.field.element(0)
         len_A = len_C = 0
         for block in BlockString(auth_data):
-            block = RightPadder(block).value(16, char='\x00')
-            A = self._to_field_elem(block)
+            padded_block = self._pad(block)
+            A = self._to_field_elem(padded_block)
             X = (X + A) * H
             len_A += len(block)*8
         for block in ciphertext:
-            block = RightPadder(block).value(16, char='\x00')
-            A = self._to_field_elem(block)
+            padded_block = self._pad(block)
+            A = self._to_field_elem(padded_block)
             X = (X + A) * H
             len_C += len(block)*8
         L = self.field.element((len_A << 64) + len_C)
