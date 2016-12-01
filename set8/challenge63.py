@@ -1,12 +1,13 @@
 from common.challenge import CryptoChallenge
-from common.math.poly import GF2k, GF2PolyRing
-from common.math.gcd import ExtendedGCD
 from common.ciphers.block.aes import AES
-from common.tools.misc import RandomByteGenerator
 from common.ciphers.block.modes import GCM
+from common.math.gcd import ExtendedGCD
+from common.math.poly import GF2k, GF2PolyRing, GF2kPolyRing
 from common.math.poly_factor import SquarefreeFactorization,\
                                     DistinctDegreeFactorization,\
-                                    EqualDegreeFactorization
+                                    EqualDegreeFactorization,\
+                                    GF2kPolyFactorization
+from common.tools.misc import RandomByteGenerator
 
 
 class Set8Challenge63(CryptoChallenge):
@@ -40,7 +41,10 @@ class Set8Challenge63(CryptoChallenge):
         self._assert_equals(d1, d2)
         
         a = GF2_4.rand_element()
-        b = GF2_4.rand_element()
+        while True:
+            b = GF2_4.rand_element()
+            if b != 0:
+                break
         
         q = a / b
         r = a % b
@@ -133,6 +137,24 @@ class Set8Challenge63(CryptoChallenge):
         self._assert_equals(3, len(factors))
         for q in factors:
             self._assert_in(q, [a,b,c])
+            
+    def _test_GF2k_factorization(self):
+        G = GF2k(128, modulus='x^128 + x^7 + x^2 + x + 1')
+        GF2k_X = GF2kPolyRing(G)
+        x = GF2k_X.x()
+        z = G.x()
+        
+        a = (z**54+1)*x**2 + z*x + z**32 + 1
+        b = (z**10+ z + 1)*x**7 + z*x + z**7 + z**5
+        p = z * a**2 * b**3
+        
+        factors = GF2kPolyFactorization().factor(p)
+        
+        p1 = 1
+        for q, k in factors:
+            p1 *= q**k
+        
+        self._assert_equals(p1, p.to_monic())
     
     def _test_key_recovery(self): 
         pass
@@ -152,6 +174,9 @@ class Set8Challenge63(CryptoChallenge):
         
         # 5. Test equal degree factorization over GF(2)[X].
         self._test_equal_degree_factorization()
+        
+        # 6. Test factorization over GF(2^128)[X].
+        self._test_GF2k_factorization()
     
-        # 4. Perform key recovery attack on GCM.
+        # 7. Perform key recovery attack on GCM.
         self._test_key_recovery()

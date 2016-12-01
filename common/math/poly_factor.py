@@ -1,3 +1,5 @@
+import math
+
 from collections import defaultdict
 
 from common.math.gcd import GCD
@@ -6,7 +8,6 @@ from common.math.gcd import GCD
 class SquarefreeFactorization(object):
     
     def factor(self, f):
-        # TODO: ensure f is monic when factoring over GF(2^k).
         if f == 0:
             return [(f,1)]
         i = 1
@@ -16,7 +17,7 @@ class SquarefreeFactorization(object):
         if g != 0:
             c = GCD().value(f, g)
             w = f / c
-            while w != 1:
+            while not w.is_unit():
                 y = GCD().value(w, c)
                 z = w / y
                 R *= z**i
@@ -24,13 +25,13 @@ class SquarefreeFactorization(object):
                 w = y
                 c = c / y
             factors = [(R,1)]
-            if c != 1:
+            if not c.is_unit():
                 c = c.x2_to_x()
                 factors += map(lambda (p,k): (p,2*k), self.factor(c))
         else:
             f = f.x2_to_x()
             factors = map(lambda (p,k): (p,2*k), self.factor(f))
-            
+
         return factors
         
         
@@ -41,10 +42,10 @@ class DistinctDegreeFactorization(object):
         i = 1
         factors = list()
         x = f.ring.x()
-        x_q = x**2
+        x_q = f.ring.pow_mod(x, f.ring.field_order(), f1)
         while f1.degree() >= 2*i:
             g = GCD().value(f1, x_q + x)
-            if g != 1:
+            if not g.is_unit():
                 factors.append((g,i))
                 f1 /= g
             i += 1
@@ -63,15 +64,17 @@ class EqualDegreeFactorization(object):
     def factor(self, f, d):
         if f.degree() == d:
             return [f]
-        x = f.ring.x()
+        k = int(math.log(f.ring.field_order(), 2))
         while True:
-            T = f.ring.rand_element() % (x**(2*d))
+            T = f.ring.rand_element(2*d - 1)
+            if T.degree() < 1:
+                continue
             W = T
-            for _ in xrange(d-1):
+            for _ in xrange(k*d-1):
                 T = T**2 % f
                 W += T
             g = GCD().value(f, W)
-            if g != 1 and g != f:
+            if not g.is_unit() and g.degree() < f.degree():
                 f1 = g
                 f2 = f / g
                 return self.factor(f1, d) + self.factor(f2, d)
@@ -95,4 +98,4 @@ class GF2kPolyFactorization(object):
                 ed_factors = EqualDegreeFactorization().factor(h,d)
                 for p in ed_factors:
                     factors[p] += k
-        return factors
+        return map(lambda (p,k): (p.to_monic(), k), factors.items())
