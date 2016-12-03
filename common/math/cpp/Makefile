@@ -1,7 +1,7 @@
 MODULE  = cxx_linalg
 
 SRC_DIR = src
-OUT_DIR = ..
+OUT_DIR = ../linalg
 CPP_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 H_FILES = $(wildcard $(SRC_DIR)/*.h)
 

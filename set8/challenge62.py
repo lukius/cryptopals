@@ -2,8 +2,9 @@ from fractions import Fraction
 
 from common.attacks.signature.ecdsa import BiasedNonceECDSAKeyRecoveryAttack
 from common.challenge   import CryptoChallenge
-from common.math.linalg import Vector, BasisOrthogonalizer,\
-                               LatticeBasisReduction
+from common.math.linalg.lattice import BasisOrthogonalizer,\
+                                       LatticeBasisReduction
+from common.math.linalg.vector import Vector
 from common.signature.dsa import ECDSA
 
 from misc import Set8EllipticCurve

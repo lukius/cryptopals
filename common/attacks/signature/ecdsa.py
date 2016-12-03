@@ -4,7 +4,7 @@ from collections import defaultdict
 from fractions import Fraction
 
 from common.math.invmod import ModularInverse
-from common.math.linalg import Vector, LatticeBasisReduction
+from common.math.linalg.lattice import Vector, LatticeBasisReduction
 from common.tools.misc import RandomByteGenerator
 
 

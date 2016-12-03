@@ -8,7 +8,6 @@ from common.math.poly_factor import SquarefreeFactorization,\
                                     DistinctDegreeFactorization,\
                                     EqualDegreeFactorization,\
                                     GF2kPolyFactorization
-from common.tools.converters import BytesToInt
 from common.tools.misc import RandomByteGenerator
 
 
@@ -174,9 +173,9 @@ class Set8Challenge63(CryptoChallenge):
         gcm = GCM(iv)
         c2, t2 = aes.encrypt((p2, a2), mode=gcm)
         
-        attack = GCMAuthSubkeyRecoveryAttack()
-        key = attack.recover_key((c1,a1,t1), (c2,a2,t2))
+        attack = GCMAuthSubkeyRecoveryAttack(aes, gcm)
 
+        key = attack.recover_key((c1,a1,t1), (c2,a2,t2))
         self._assert_equals(gcm.H, key)
     
     def _validate(self):
