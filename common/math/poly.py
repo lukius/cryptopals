@@ -3,6 +3,7 @@ import random
 
 from common.math.group import AbstractGroup
 from common.math.gcd import ExtendedGCD
+from common.math.linalg.bit import BitVector, BitMatrix
 
 
 class GF2PolyRing(object):
@@ -173,6 +174,16 @@ class GF2k(GF2PolyRing, AbstractGroup):
         self.k = k
         mod, mod_deg = self._parse_poly(modulus)
         self.mod = GF2Poly(self, mod, mod_deg)
+        
+    def to_bit_matrix(self, f):
+        x = self.x()
+        z = self.identity()
+        M = BitMatrix(self.k, self.k)
+        for j in xrange(self.k):
+            v = f(z).to_bit_vector()
+            M.set_column(self.k - j - 1, v)
+            z *= x
+        return M
 
     def element(self, obj):
         p = GF2PolyRing.element(self, obj)
@@ -505,6 +516,9 @@ class GF2Poly(Char2FieldPoly):
     
     def to_monic(self):
         return self.clone()
+    
+    def to_bit_vector(self):
+        return BitVector._new(self.ring.k, self.n)
     
     def invert(self):
         return self.ring.invert(self)    
