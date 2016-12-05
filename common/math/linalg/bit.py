@@ -9,6 +9,16 @@ class BitVector(object):
         return cls._new(n, k)
     
     @classmethod
+    def li_subset(cls, vectors):
+        M = BitMatrix._new([v for v in vectors])
+        T, _ = BitMatrixRowReduction().reduce(M)
+        li_vectors = list(vectors) 
+        for i, v in T:
+            if v == 0:
+                del li_vectors[i]
+        return li_vectors
+    
+    @classmethod
     def _new(cls, n, k):
         v = BitVector(n)
         v.k = k
@@ -152,58 +162,11 @@ class BitMatrix(object):
         return T
     
     def kernel(self):
-        def msb_index(v, i=None):
-            i = i or 0
-            while i < len(v) and v[i] == 0:
-                i += 1
-            return i
-        
         basis = list()
-
-        T = self.transpose()
-        W = sorted(enumerate(T.M), key=lambda x: msb_index(x[1]))
-        I = list()
-        for i, _ in W:
-            row = BitVector([(1 if i==j else 0) for j in xrange(T.n)])
-            I.append(row)
-        I = self._new(I)
-        
-        k = msb_index(W[0][1])
-        k_row = 0
-        i = 1
-        
-        while i < T.n:
-            j = msb_index(W[i][1], k) 
-            if j == len(W[i][1]):
-                break
-            if j > k:
-                k = j
-                k_row = i
-                i += 1
-                continue
-            W[i] = (W[i][0], W[i][1] + W[k_row][1])
-            I.M[i] += I.M[k_row]
-            k1 = msb_index(W[i][1], j+1)
-            if k1 == len(W[i][1]):
-                basis.append(I.M[i])
-                i += 1
-            else:
-                j = i
-                while j < T.n - 1 and k1 > msb_index(W[j+1][1], k):
-                    W[j], W[j+1] = W[j+1], W[j]
-                    I.swap_rows(j, j+1)
-                    j += 1
-                if j == i:
-                    k = k1
-                    k_row = i
-                    i += 1
-                
-        while i < T.n:
-            j = msb_index(W[i][1], k)
-            if j == len(W[i][1]):
-                basis.append(I.M[i])
-            i += 1
-            
+        T, S = BitMatrixRowReduction().reduce(self.transpose())
+        for i, (_, v) in enumerate(T):
+            if v == 0:
+                basis.append(S[i])
         return GF2VectorSpace(basis, self.m)
     
     def pow(self, M, i):
@@ -283,9 +246,22 @@ class BitMatrix(object):
         return self.pow(self, i)
             
     def __getitem__(self, pos):
-        i, j = pos
+        if isinstance(pos, (int, long)):
+            return self._get_row(pos)
+        elif isinstance(pos, (tuple,list)):
+            return self._get_cell(*pos)
+        else:
+            raise Exception
+            
+    def _get_cell(self, i, j):
         if 0 <= i < self.n and 0 <= j < self.m:
             return self.M[i][j]
+        else:
+            raise IndexError
+        
+    def _get_row(self, i):
+        if 0 <= i < self.n:
+            return self.M[i]
         else:
             raise IndexError
 
@@ -310,9 +286,8 @@ class BitMatrix(object):
 class GF2VectorSpace(object):
     
     def __init__(self, basis, n):
-        # TODO: assuming linearly independent vectors.
         self.n = n
-        self.basis = set(basis)
+        self.basis = BitVector.li_subset(basis)
         
     def dim(self):
         return len(self.basis)
@@ -329,3 +304,51 @@ class GF2VectorSpace(object):
         for v in self.basis:
             v_reprs.append(repr(v))
         return '<%s>' % ', '.join(v_reprs)
+    
+    
+class BitMatrixRowReduction(object):
+    
+    def _msb_index(self, v, i=None):
+        i = i or 0
+        while i < len(v) and v[i] == 0:
+            i += 1
+        return i
+    
+    def reduce(self, M):
+        W = sorted(enumerate(M.M), key=lambda x: self._msb_index(x[1]))
+        I = list()
+        for i, _ in W:
+            row = BitVector([(1 if i==j else 0) for j in xrange(M.n)])
+            I.append(row)
+        I = BitMatrix._new(I)
+        
+        k = self._msb_index(W[0][1])
+        k_row = 0
+        i = 1
+        
+        while i < M.n:
+            j = self._msb_index(W[i][1], k) 
+            if j == len(W[i][1]):
+                break
+            if j > k:
+                k = j
+                k_row = i
+                i += 1
+                continue
+            W[i] = (W[i][0], W[i][1] + W[k_row][1])
+            I.M[i] += I.M[k_row]
+            k1 = self._msb_index(W[i][1], j+1)
+            if k1 == len(W[i][1]):
+                i += 1
+            else:
+                j = i
+                while j < M.n - 1 and k1 > self._msb_index(W[j+1][1], k):
+                    W[j], W[j+1] = W[j+1], W[j]
+                    I.swap_rows(j, j+1)
+                    j += 1
+                if j == i:
+                    k = k1
+                    k_row = i
+                    i += 1
+                    
+        return W, I

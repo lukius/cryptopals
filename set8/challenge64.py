@@ -32,7 +32,7 @@ class Set8Challenge64(CryptoChallenge):
         
         v1 = B.rand_vector()
         v2 = B.rand_vector()
-        
+
         self._assert_equals(0, M*v1)
         self._assert_equals(0, M*v2)
     

@@ -81,6 +81,9 @@ class GF2PolyRing(object):
             
         elif isinstance(obj, basestring):
             n, deg = self._parse_poly(obj)
+        
+        elif isinstance(obj, BitVector):
+            n, deg = obj.k, obj.n
             
         return GF2Poly(self, n, deg)
 
