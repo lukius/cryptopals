@@ -63,8 +63,13 @@ class RandomByteGenerator(object):
     def value(self, count=None):
         if count is None:
             count = random.randint(1, self.MAX_VALUE)
-        random_bytes = [chr(random.choice(range(255))) for _ in range(count)]
-        return Concatenation(random_bytes).value()
+        random_bytes = str()
+        chars = map(chr, range(255))
+        i = 0
+        while i < count:
+            random_bytes += random.choice(chars)
+            i += 1
+        return random_bytes
     
     
 class AllEqual(object):

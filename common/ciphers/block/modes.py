@@ -138,11 +138,24 @@ class RandomAccessCTR(CTR):
     
 class GCM(CTR):
     
-    def __init__(self, iv, block_size=None):
+    def __init__(self, iv, tag_length=None, block_size=None):
         CTR.__init__(self, block_size=block_size)
         self.iv = iv
         self.len_iv = len(iv) * 8
+        self.tag_length = tag_length/8 if tag_length else self.block_size
         self.field = GF2k(128, modulus='x^128 + x^7 + x^2 + x + 1')
+        
+    def _unpack_encryption_data(self, data):
+        if isinstance(data, (tuple,list)):
+            return data
+        else:
+            return data, str()
+
+    def _unpack_decryption_data(self, data):
+        if len(data) == 2:
+            return data[0], str(), data[1]
+        else:
+            return data
         
     def _to_field_elem(self, block):
         int_block = BytesToInt(block).value()
@@ -190,12 +203,13 @@ class GCM(CTR):
     
     def _tag(self, cipher, G):
         S = self._to_field_elem(cipher.encrypt(self.y0).bytes())
-        return self._from_field_elem(G + S)
+        tag = self._from_field_elem(G + S)
+        return tag[:self.tag_length]
         
     def encrypt_with_cipher(self, data, cipher):
         self._init_nonce(cipher)
         self._init_counter()
-        plaintext, auth_data = data
+        plaintext, auth_data = self._unpack_encryption_data(data)
         ciphertext = CTR.encrypt_with_cipher(self, plaintext, cipher)
         G = self._ghash(cipher, auth_data, ciphertext)
         tag = self._tag(cipher, G)
@@ -204,7 +218,7 @@ class GCM(CTR):
     def decrypt_with_cipher(self, data, cipher):
         self._init_nonce(cipher)
         self._init_counter()
-        ciphertext, auth_data, input_tag = data
+        ciphertext, auth_data, input_tag = self._unpack_decryption_data(data)
         G = self._ghash(cipher, auth_data, ciphertext)
         tag = self._tag(cipher, G)
         if tag == input_tag:

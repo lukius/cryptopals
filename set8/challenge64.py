@@ -1,6 +1,10 @@
+from common.attacks.gcm.truncated_mac import TruncatedMACGCMAttack
 from common.challenge import CryptoChallenge
+from common.ciphers.block.aes import AES
+from common.ciphers.block.modes import GCM
 from common.math.linalg.bit import BitMatrix
 from common.math.poly import GF2k
+from common.tools.misc import RandomByteGenerator
 
 
 class Set8Challenge64(CryptoChallenge):
@@ -35,6 +39,21 @@ class Set8Challenge64(CryptoChallenge):
 
         self._assert_equals(0, M*v1)
         self._assert_equals(0, M*v2)
+        
+    def _test_key_recovery(self):
+        byte_generator = RandomByteGenerator()
+        gcm_iv = byte_generator.value(16)
+        aes_key = byte_generator.value(16)
+        message = byte_generator.value(16 * 2**17)
+
+        aes = AES(aes_key)
+        gcm = GCM(gcm_iv, tag_length=32)
+        c, t = aes.encrypt(message, mode=gcm)
+        
+        attack = TruncatedMACGCMAttack(aes, gcm)
+        key = attack.recover_key(c, t)
+        
+        self._assert_equals(gcm.H, key)        
     
     def _validate(self):
         # 1. Validate squaring and multiplication in GF(2^k) as linear
@@ -43,3 +62,6 @@ class Set8Challenge64(CryptoChallenge):
         
         # 2. Validate computation of kernel of a linear transformation.
         self._test_kernel_computation()
+        
+        # 3. Perform key recovery attack.
+        self._test_key_recovery()
