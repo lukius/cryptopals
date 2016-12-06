@@ -1,4 +1,5 @@
 import random
+from common.tools.misc import SetBits
 
 
 class BitVector(object):
@@ -10,12 +11,15 @@ class BitVector(object):
     
     @classmethod
     def li_subset(cls, vectors):
-        M = BitMatrix._new([v for v in vectors])
-        T, _ = BitMatrixRowReduction().reduce(M)
         li_vectors = list(vectors) 
-        for i, v in T:
-            if v == 0:
-                del li_vectors[i]
+
+        if vectors:
+            M = BitMatrix._new([v for v in vectors])
+            T, _ = BitMatrixRowReduction().reduce(M)
+            for i in xrange(T.rows()):
+                if T[i] == 0:
+                    del li_vectors[i]
+                
         return li_vectors
     
     @classmethod
@@ -63,16 +67,7 @@ class BitVector(object):
         if not isinstance(x, BitVector) or self.n != x.n:
             raise Exception
         
-        i = self.n
-        r = 0
-        b = 1 << self.n
-        while i > 0:
-            b >>= 1
-            if self.k & b and x.k & b:
-                r += 1
-            i -= 1
-            
-        return r % 2
+        return SetBits().value(self.k & x.k) % 2
     
     def __rmul__(self, x):
         return self.__mul__(x)
@@ -142,6 +137,18 @@ class BitMatrix(object):
         self.n = n
         self.m = m
         self.M = M or [BitVector(m) for _ in xrange(n)]
+        self.M_cols = list()
+        for i in xrange(self.m):
+            v = BitVector(self.n)
+            for j in xrange(self.n):
+                v[j] = self.M[j][i]
+            self.M_cols.append(v)
+            
+    def clone(self):
+        M = list()
+        for v in self.M:
+            M.append(v.clone())
+        return self._new(M)
         
     def rows(self):
         return self.n
@@ -156,16 +163,16 @@ class BitMatrix(object):
         self.M[i], self.M[j] = self.M[j], self.M[i]
     
     def transpose(self):
-        T = BitMatrix(self.m, self.n)
-        for i,v in enumerate(self.M):
-            T.set_column(i, v)
-        return T
+        T = list()
+        for v in self.M_cols:
+            T.append(v)
+        return self._new(T)
     
     def kernel(self):
         basis = list()
         T, S = BitMatrixRowReduction().reduce(self.transpose())
-        for i, (_, v) in enumerate(T):
-            if v == 0:
+        for i in xrange(T.rows()):
+            if T[i] == 0:
                 basis.append(S[i])
         return GF2VectorSpace(basis, self.m)
     
@@ -183,6 +190,7 @@ class BitMatrix(object):
         if len(v) != self.n:
             raise Exception
         
+        self.M_cols[j] = v
         for i in xrange(self.n):
             self[i,j] = v[i]
             
@@ -192,31 +200,36 @@ class BitMatrix(object):
         
         self.M.append(v.clone())
         self.n += 1
+        for j in xrange(self.m):
+            k = (self.M_cols[j].k << 1) + v[j]
+            self.M_cols[j] = BitVector._new(self.n, k)
             
     def _mul_vec(self, v):
         if len(v) != self.m:
             raise Exception
         
-        r = BitVector(self.n)
+        r = list()
         
         for i in xrange(self.n):
-            for j in xrange(self.m):
-                r[i] ^= self[i,j] * v[j]
-            
-        return r 
+            r.append(self.M[i] * v)
+
+        return BitVector(r) 
 
     def _mul_mat(self, M):
         if self.m != M.n:
             raise Exception
         
-        R = BitMatrix(self.n, M.m)
+        set_bits = SetBits()
+        R = list()
         
         for i in xrange(self.n):
-            for j in xrange(self.m):
-                for k in xrange(self.m):
-                    R[i,j] ^= self[i,k] * M[k,j]
+            v = BitVector(M.m)
+            for j in xrange(M.m):
+                k = self.M[i].k & M.M_cols[j].k
+                v[j] = set_bits.value(k) % 2
+            R.append(v)
         
-        return R
+        return BitMatrix._new(R)
             
     def __add__(self, M):
         if not isinstance(M, BitMatrix):
@@ -224,13 +237,13 @@ class BitMatrix(object):
         if self.n != M.n or self.m != M.m:
             raise Exception
         
-        R = BitMatrix(self.n, self.m)
+        R = list()
         
         for i in xrange(self.n):
-            for j in xrange(self.m):
-                R[i,j] = self[i,j] ^ M[i,j]
+            u = self[i] + M[i]
+            R.append(u)
                 
-        return R
+        return self._new(R)
     
     def __mul__(self, obj):
         if isinstance(obj, BitVector):
@@ -266,14 +279,45 @@ class BitMatrix(object):
             raise IndexError
 
     def __setitem__(self, pos, x):
-        i, j = pos
+        if isinstance(pos, (int, long)):
+            return self._set_row(pos, x)
+        elif isinstance(pos, (tuple,list)):
+            i, j = pos
+            return self._set_cell(i, j, x)
+        else:
+            raise Exception        
+        
+    def _set_cell(self, i, j, x):
         if 0 <= i < self.n and 0 <= j < self.m:
             self.M[i][j] = x % 2
+            self.M_cols[j][i] = x % 2
         else:
             raise IndexError
         
+    def _set_row(self, i, x):
+        if 0 <= i < self.n and len(x) == self.m:
+            self.M[i] = x
+            for j in xrange(len(x)):
+                self.M_cols[j][i] = x[j]
+        else:
+            raise IndexError        
+        
+        
     def __len__(self):
         return self.n * self.m
+    
+    def __eq__(self, M):
+        if not isinstance(M, BitMatrix) or self.dim() != M.dim():
+            return False
+        
+        for i in xrange(self.n):
+            if self[i] != M[i]:
+                return False
+            
+        return True
+    
+    def __hash__(self):
+        return reduce(lambda s,v: s ^ hash(v), self.M, 0)
     
     def __repr__(self):
         M_str = str()
@@ -287,21 +331,24 @@ class GF2VectorSpace(object):
     
     def __init__(self, basis, n):
         self.n = n
-        self.basis = BitVector.li_subset(basis)
+        self.B = BitVector.li_subset(basis)
         
     def dim(self):
-        return len(self.basis)
+        return len(self.B)
+    
+    def basis(self):
+        return self.B
     
     def rand_vector(self):
         if self.dim() > 0:
             scalars = [random.randint(0,1) for _ in xrange(self.dim())]
             return reduce(lambda v, (k,u): v + k*u,
-                          zip(scalars, self.basis),
+                          zip(scalars, self.B),
                           BitVector(self.n))
             
     def __repr__(self):
         v_reprs = list()
-        for v in self.basis:
+        for v in self.B:
             v_reprs.append(repr(v))
         return '<%s>' % ', '.join(v_reprs)
     
@@ -314,41 +361,25 @@ class BitMatrixRowReduction(object):
             i += 1
         return i
     
-    def reduce(self, M):
-        W = sorted(enumerate(M.M), key=lambda x: self._msb_index(x[1]))
-        I = list()
-        for i, _ in W:
-            row = BitVector([(1 if i==j else 0) for j in xrange(M.n)])
-            I.append(row)
-        I = BitMatrix._new(I)
-        
-        k = self._msb_index(W[0][1])
-        k_row = 0
-        i = 1
-        
-        while i < M.n:
-            j = self._msb_index(W[i][1], k) 
-            if j == len(W[i][1]):
-                break
-            if j > k:
-                k = j
-                k_row = i
-                i += 1
+    def reduce(self, B):
+        n, m = B.dim()
+        d = {self._msb_index(B[0]) : 0}
+        M = [B[0].clone()]
+        I = [BitVector._new(n, 1<<(n-1))]
+        for i in xrange(1, n):
+            M.append(B[i].clone())
+            I.append(BitVector._new(n, 1<<(n-i-1)))
+            k = self._msb_index(M[i])
+            if k not in d:
+                d[k] = i
                 continue
-            W[i] = (W[i][0], W[i][1] + W[k_row][1])
-            I.M[i] += I.M[k_row]
-            k1 = self._msb_index(W[i][1], j+1)
-            if k1 == len(W[i][1]):
-                i += 1
-            else:
-                j = i
-                while j < M.n - 1 and k1 > self._msb_index(W[j+1][1], k):
-                    W[j], W[j+1] = W[j+1], W[j]
-                    I.swap_rows(j, j+1)
-                    j += 1
-                if j == i:
-                    k = k1
-                    k_row = i
-                    i += 1
-                    
-        return W, I
+            while True:
+                M[i] += M[d[k]]
+                I[i] += I[d[k]]
+                k = self._msb_index(M[i], k+1)
+                if k == m:
+                    break
+                if k not in d:
+                    d[k] = i
+                    break
+        return BitMatrix._new(M), BitMatrix._new(I)

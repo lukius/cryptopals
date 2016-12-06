@@ -26,6 +26,11 @@ class Set8Challenge64(CryptoChallenge):
         Msq_r = Msq * r.to_bit_vector()
         
         self._assert_equals(r_sq, Msq_r)
+
+        r_sq = (r**4).to_bit_vector()
+        Msq_r = (Msq**2) * r.to_bit_vector()
+        
+        self._assert_equals(r_sq, Msq_r)
         
     def _test_kernel_computation(self):
         while True:
@@ -44,14 +49,14 @@ class Set8Challenge64(CryptoChallenge):
         byte_generator = RandomByteGenerator()
         gcm_iv = byte_generator.value(16)
         aes_key = byte_generator.value(16)
-        message = byte_generator.value(16 * 2**17)
+        message = byte_generator.value(16 * 2**9)
 
         aes = AES(aes_key)
-        gcm = GCM(gcm_iv, tag_length=32)
+        gcm = GCM(gcm_iv, tag_length=16)
         c, t = aes.encrypt(message, mode=gcm)
         
-        attack = TruncatedMACGCMAttack(aes, gcm)
-        key = attack.recover_key(c, t)
+        attack = TruncatedMACGCMAttack(aes, gcm, c, t)
+        key = attack.recover_key()
         
         self._assert_equals(gcm.H, key)        
     

@@ -101,3 +101,30 @@ class HammingDistance(object):
         differences = reduce(lambda count, (bit1,bit2): count + (bit1 != bit2),
                              pairs, 0)
         return differences
+    
+    
+class SetBits(object):
+    
+    TABLE = None
+    
+    def __init__(self):
+        if self.TABLE is None:
+            self._init_table()
+            
+    def _init_table(self):
+        self.TABLE = list()
+        for i in xrange(0,256,2):
+            count = 0
+            while i > 0:
+                if i & 1:
+                    count += 1
+                i >>= 1
+            self.TABLE.append(count)
+            self.TABLE.append(count + 1)
+    
+    def value(self, n):
+        count = 0
+        while n > 0:
+            count += self.TABLE[n & 0xff]
+            n >>= 8
+        return count        
