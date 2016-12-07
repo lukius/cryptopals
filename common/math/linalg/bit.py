@@ -14,7 +14,7 @@ class BitVector(object):
         li_vectors = list(vectors) 
 
         if vectors:
-            M = BitMatrix._new([v for v in vectors])
+            M = BitMatrix._new([v.clone() for v in vectors])
             T, _ = BitMatrixRowReduction().reduce(M)
             for i in xrange(T.rows()):
                 if T[i] == 0:
@@ -240,7 +240,8 @@ class BitMatrix(object):
         R = list()
         
         for i in xrange(self.n):
-            u = self[i] + M[i]
+            k = self.M[i].k ^ M.M[i].k
+            u = BitVector._new(self.m, k)
             R.append(u)
                 
         return self._new(R)
@@ -302,7 +303,6 @@ class BitMatrix(object):
         else:
             raise IndexError        
         
-        
     def __len__(self):
         return self.n * self.m
     
@@ -338,6 +338,10 @@ class GF2VectorSpace(object):
     
     def basis(self):
         return self.B
+    
+    def to_matrix(self):
+        B = [v.clone() for v in self.B]
+        return BitMatrix._new(B)
     
     def rand_vector(self):
         if self.dim() > 0:
