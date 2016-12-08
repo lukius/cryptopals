@@ -105,7 +105,7 @@ class TruncatedMACGCMAttack(GCMAuthSubkeyRecoveryAttack):
                 vectors[v_index].flip(bit_index)
         return vectors
     
-    def _extend_K(self, D, X):
+    def _recompute_X(self, D, X):
         AD = self._build_AD(D)
         AD_X = AD*X
         n_rows = 0
@@ -122,21 +122,25 @@ class TruncatedMACGCMAttack(GCMAuthSubkeyRecoveryAttack):
             if n_rows + zero_rows == self.tag_len:
                 break 
 
-        li_vectors = BitVector.li_subset(vectors)
-        K = BitMatrix._new(li_vectors)
-        new_X = K.kernel().to_matrix().transpose()
+        if n_rows != 0:
+            li_vectors = BitVector.li_subset(vectors)
+            K = BitMatrix._new(li_vectors)
+            new_X = K.kernel().to_matrix().transpose()
+            X *= new_X
         
-        return X*new_X
+        return n_rows != 0, X
     
     def recover_key(self):
         n = len(self.D) - 1
         r = n - 1
         X = BitMatrix.identity(128)
+        should_build_T = True
         
         while True:
-            T = self._build_dependency_matrix(X, r)
+            if should_build_T:
+                T = self._build_dependency_matrix(X, r)
             D = self._find_valid_D(T)
-            X = self._recompute_X(D, X)
+            should_build_T, X = self._recompute_X(D, X)
             if X.columns() == 1:
                 break
             r = (128*n) / X.columns()
