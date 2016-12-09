@@ -144,9 +144,9 @@ class Worker(object):
         self.process.join()
         with self.lock:
             self.idle = True
-        self.pool._on_worker_finished(self, task)
+            self.process = None
         task.on_finished()
-        self.process = None
+        self.pool._on_worker_finished(self, task)
         
     def run(self, task):
         with self.lock:
