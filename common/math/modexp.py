@@ -1,4 +1,4 @@
-from common.math.group import Z_n
+from common.math.structures import Z_n
 
 
 class ModularExp(object):

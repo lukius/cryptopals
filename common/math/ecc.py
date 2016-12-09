@@ -1,7 +1,7 @@
 import math
 import random
 
-from common.math.group import AbstractGroup
+from common.math.structures import AbstractGroup
 from common.math.invmod import ModularInverse
 from common.math.root import ModularSquareRoot
 from common.math.modexp import ModularExp

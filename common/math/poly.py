@@ -1,7 +1,7 @@
 import copy
 import random
 
-from common.math.group import AbstractGroup
+from common.math.structures import AbstractGroup
 from common.math.gcd import ExtendedGCD
 from common.math.linalg.bit import BitVector, BitMatrix
 

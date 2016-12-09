@@ -1,4 +1,6 @@
 import random
+
+from common.math.structures import AbstractMonoid
 from common.tools.misc import SetBits
 
 
@@ -114,10 +116,10 @@ class BitVector(object):
         return '(%s)' % (','.join(v))
     
     
-class BitMatrix(object):
+class BitMatrix(AbstractMonoid):
     
     @classmethod
-    def identity(cls, n):
+    def Id(cls, n):
         I = [BitVector([(1 if i==j else 0) for i in xrange(n)])
              for j in xrange(n)]
         return cls._new(I)
@@ -159,9 +161,16 @@ class BitMatrix(object):
     def dim(self):
         return (self.n, self.m)
     
-    def swap_rows(self, i, j):
-        self.M[i], self.M[j] = self.M[j], self.M[i]
+    # Monoid interface
+    def identity(self):
+        if self.n != self.m:
+            raise Exception
+        return BitMatrix.Id(self.n)
     
+    # Monoid interface
+    def add(self, M, N):
+        return M.__mul__(N)
+
     def transpose(self):
         T = list()
         for v in self.M_cols:
@@ -176,16 +185,6 @@ class BitMatrix(object):
                 basis.append(S[i])
         return GF2VectorSpace(basis, self.m)
     
-    def pow(self, M, i):
-        # TODO: refactor.
-        result = BitMatrix.identity(M.n)
-        while i > 0:
-            if i % 2 == 1:
-                result *= M
-            i >>= 1
-            M = M*M
-        return result    
-        
     def set_column(self, j, v):
         if len(v) != self.n:
             raise Exception

@@ -1,13 +1,7 @@
 from common.math.invmod import ModularInverse
 
 
-class AbstractGroup(object):
-    
-    def identity(self):
-        raise NotImplementedError
-    
-    def add(self, a, b):
-        raise NotImplementedError
+class AbstractMonoid(object):
     
     def pow(self, a, n):
         result = self.identity()
@@ -17,6 +11,15 @@ class AbstractGroup(object):
             n >>= 1
             a = self.add(a, a)
         return result
+
+    def identity(self):
+        raise NotImplementedError
+    
+    def add(self, a, b):
+        raise NotImplementedError
+
+
+class AbstractGroup(AbstractMonoid):
     
     def invert(self, a):
         raise NotImplementedError

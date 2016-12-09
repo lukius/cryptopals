@@ -1,7 +1,7 @@
 import random
 
 from common.hash.sha256 import SHA256
-from common.math.group import Z_n
+from common.math.structures import Z_n
 from common.math.invmod import ModularInverse
 from common.math.modexp import ModularExp
 from common.math.prime import RandPrime, is_prime

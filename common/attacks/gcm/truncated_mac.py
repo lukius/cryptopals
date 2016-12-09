@@ -108,7 +108,7 @@ class TruncatedMACGCMAttack(GCMAuthSubkeyRecoveryAttack):
     
     def recover_key(self):
         n = len(self.D) - 1
-        X = BitMatrix.identity(128)
+        X = BitMatrix.Id(128)
         should_build_T = True
         # r is the current number of rows of AD * X that we can nullify. 
         r = n - 1
