@@ -14,10 +14,10 @@ typedef boost::python::list list;
 list basis_reduction(const list&);
 list orthogonalize(const list&);
 
-vec_q *_list_to_cxx(const list&);
+vec_q _list_to_cxx(const list&);
 list _vec_to_py(const vec_q&);
 
-basis_q *_to_cxx(const list&);
+basis_q _to_cxx(const list&);
 list _to_py(const basis_q&);
 
 
