@@ -1,4 +1,4 @@
-from common.math.poly import GF2k
+from common.math.finite_field import GF2k
 from common.tools.blockstring import BlockString
 from common.tools.converters import IntToBytes, BytesToInt
 from common.tools.padders import PKCS7Padder, PKCS7Unpadder,\

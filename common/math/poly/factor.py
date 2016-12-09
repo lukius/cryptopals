@@ -4,6 +4,8 @@ from collections import defaultdict
 
 from common.math.gcd import GCD
 
+# Factorization of polynomials with coefficients in a finite field of
+# characteristic 2 (i.e., the polynomial ring GF(2^k)[X]). 
 
 class SquarefreeFactorization(object):
     
@@ -42,7 +44,7 @@ class DistinctDegreeFactorization(object):
         i = 1
         factors = list()
         x = f.ring.x()
-        x_q = f.ring.pow_mod(x, f.ring.field_order(), f1)
+        x_q = x.pow_mod(f.ring.field_order(), f1)
         while f1.degree() >= 2*i:
             g = GCD().value(f1, x_q + x)
             if not g.is_unit():
@@ -60,6 +62,8 @@ class DistinctDegreeFactorization(object):
     
     
 class EqualDegreeFactorization(object):
+    
+    # An alternative version of the Cantor-Zassenhaus algorithm.
     
     def factor(self, f, d):
         if f.degree() == d:

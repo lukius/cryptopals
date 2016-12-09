@@ -1,5 +1,6 @@
+from common.math.finite_field import GF2k
+from common.math.poly.ring import GF2kPolyRing
 from common.tools.converters import BytesToInt, IntToBytes
-from common.math.poly import GF2k, GF2kPolyRing
 
 
 class GCMAuthSubkeyRecoveryAttack(object):

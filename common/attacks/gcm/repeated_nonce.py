@@ -1,5 +1,5 @@
 from common.attacks.gcm import GCMAuthSubkeyRecoveryAttack
-from common.math.poly_factor import GF2kPolyFactorization
+from common.math.poly.factor import GF2kPolyFactorization
 from common.tools.padders import RightPadder
 from common.tools.misc import RandomByteGenerator
 from common.tools.blockstring import BlockString

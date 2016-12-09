@@ -2,12 +2,13 @@ from common.attacks.gcm.repeated_nonce import RepeatedNonceGCMAttack
 from common.challenge import CryptoChallenge
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import GCM
+from common.math.finite_field import GF2k
 from common.math.gcd import ExtendedGCD
-from common.math.poly import GF2k, GF2PolyRing, GF2kPolyRing
-from common.math.poly_factor import SquarefreeFactorization,\
+from common.math.poly.factor import SquarefreeFactorization,\
                                     DistinctDegreeFactorization,\
                                     EqualDegreeFactorization,\
                                     GF2kPolyFactorization
+from common.math.poly.ring import GF2PolyRing, GF2kPolyRing
 from common.tools.misc import RandomByteGenerator
 
 

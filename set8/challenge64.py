@@ -2,8 +2,8 @@ from common.attacks.gcm.truncated_mac import TruncatedMACGCMAttack
 from common.challenge import CryptoChallenge
 from common.ciphers.block.aes import AES
 from common.ciphers.block.modes import GCM
+from common.math.finite_field import GF2k
 from common.math.linalg.bit import BitMatrix
-from common.math.poly import GF2k
 from common.tools.misc import RandomByteGenerator
 
 
