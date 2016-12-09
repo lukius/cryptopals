@@ -49,6 +49,11 @@ class Set8Challenge64(CryptoChallenge):
         byte_generator = RandomByteGenerator()
         gcm_iv = byte_generator.value(16)
         aes_key = byte_generator.value(16)
+        # NOTE: the 32-bit tag attack works but takes a considerable amount of
+        # time to complete, even with concurrency optimizations. This 16-bit
+        # version is faster and still the code is exactly the same, no changes
+        # needed (apart from obviously using 2^17 blocks in the following line
+        # and changing below the tag length to 32).
         message = byte_generator.value(16 * 2**9)
 
         aes = AES(aes_key)
