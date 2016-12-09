@@ -5,7 +5,7 @@ import Queue
 
 class ConcurrentTaskManager(object):
     
-    DEFAULT_WORKERS = 4
+    DEFAULT_WORKERS = multiprocessing.cpu_count()
     
     def __init__(self, workers=None):
         self.task_queue = Queue.Queue()
