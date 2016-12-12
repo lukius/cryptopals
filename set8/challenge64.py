@@ -11,7 +11,7 @@ class Challenge64GCM(GCM):
     
     # Custom GCM implementation for this challenge. Precomputes the portion of
     # the GHASH that is not affected by the differences introduced into the
-    # ciphertex by the truncated MAC attack. This speeds up the vector
+    # ciphertext by the truncated MAC attack. This speeds up the vector
     # discovery phase after finding the kernel of the dependency matrix.
     
     def __init__(self, iv, tag_length=None):

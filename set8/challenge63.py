@@ -14,9 +14,6 @@ from common.tools.misc import RandomByteGenerator
 
 class Set8Challenge63(CryptoChallenge):
     
-    def __init__(self):
-        CryptoChallenge.__init__(self)
-        
     def _test_GF2k(self):
         GF2_4 = GF2k(4, 'X^4 + X + 1')
         
