@@ -2,14 +2,13 @@ import random
 import string
 
 from common.ciphers.block.modes import BlockCipherMode
-from common.tools.misc import Concatenation
 
 
 class CompressionRatioAttack(object):
     
     PREFIX = 'sessionid='
     SUFFIX = 'Content'
-    ALPHABET = string.letters + string.digits + '/+=\n'
+    ALPHABET = string.letters + string.digits + '/-+=\n'
     
     def __init__(self, oracle):
         self.oracle = oracle
@@ -64,7 +63,8 @@ class CBCCompressionRatioAttack(CompressionRatioAttack):
     def __init__(self, oracle):
         CompressionRatioAttack.__init__(self, oracle)
         self.padding_chars = [char for char in string.printable
-                              if char not in self.ALPHABET]
+                              if char not in self.ALPHABET
+                              if char not in ' :.']
     
     def _get_block_length(self, message):
         byte_length = self._get_compressed_probe_length(message)
@@ -76,10 +76,10 @@ class CBCCompressionRatioAttack(CompressionRatioAttack):
         while True:
             padding_chars = [random.choice(self.padding_chars)
                              for _ in range(pad_size)]
-            padding = Concatenation(padding_chars).value()
+            padding = ''.join(padding_chars)
             block_length = self._get_block_length(message+padding)
             if block_length == initial_block_length+1:
-                return len(padding)
+                return pad_size
             pad_size += 1
     
     def _crack_bytes(self, cookie):
@@ -100,4 +100,4 @@ class CBCCompressionRatioAttack(CompressionRatioAttack):
                (max_offset is None or offset > max_offset):
                 max_offset = offset
                 candidate = symbol
-        return cookie + candidate
+        return cookie + candidate[0]
