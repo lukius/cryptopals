@@ -1,6 +1,8 @@
 import string
 import sys
+
 from argparse import ArgumentParser
+from collections import defaultdict
 
 from common.challenge import CryptoChallenge
 from common.tools.misc import Concatenation
@@ -55,9 +57,8 @@ class Runner(object):
     SET_PLACEHOLDER = 'set%s'
     CHALLENGE_PLACEHOLDER = 'challenge%s'
     MAX_SETS = 8
-    MAX_CHALLENGES = 8
     ALL_SETS = list(range(MAX_SETS+1))
-    ALL_CHALLENGES = list(range(MAX_CHALLENGES+1))
+    CHALLENGES_PER_SET = defaultdict(lambda: 8, {8: 9})
     REQUIREMENTS = ['Crypto']
     
     def __init__(self):
@@ -77,10 +78,7 @@ class Runner(object):
         return set_nums
     
     def _get_challenges(self):
-        challenge_nums = self.command_line_parser.get_challenges()
-        if not challenge_nums:
-            challenge_nums = self.ALL_CHALLENGES
-        return challenge_nums
+        return self.command_line_parser.get_challenges()
     
     def _check_requirements(self):
         message = 'WARNING: required module %s not found. ' +\
@@ -92,9 +90,9 @@ class Runner(object):
                 self._show_message(message % requirement)
     
     def _import_challenge(self, set_num, challenge_num):
-        n = (int(set_num)-1)*self.MAX_CHALLENGES
+        n = sum([self.CHALLENGES_PER_SET[s] for s in xrange(1, set_num)])
         start_num = n + 1
-        end_num = n + self.MAX_CHALLENGES
+        end_num = n + self.CHALLENGES_PER_SET[set_num]
         challenge_num = int(challenge_num)
         if start_num <= challenge_num <= end_num:
             real_challenge_num = challenge_num
@@ -111,9 +109,14 @@ class Runner(object):
     def _import_challenges(self):
         set_nums = self._get_sets()
         challenge_nums = self._get_challenges()
+        
         for set_num in set_nums:
+            if not challenge_nums:
+                n = self.CHALLENGES_PER_SET[set_num]
+                challenge_nums = range(1, n+1)
+                
             for challenge_num in challenge_nums:
-                self._import_challenge(set_num, challenge_num)
+                self._import_challenge(int(set_num), int(challenge_num))
                 
     def _run_challenge(self, challenge):
         self._show_message('Running %s ... ' % challenge.__class__.__name__)

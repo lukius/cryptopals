@@ -21,7 +21,7 @@ class Challenge64GCM(GCM):
     def _is_power_of_2(self, i):
         return i & (i-1) == 0
         
-    def _precompute_(self, ciphertext):
+    def _precompute_hash(self, ciphertext):
         self.hash = 0
         n = ciphertext.block_count() + 1
         h = self._to_field_elem(self.H)
@@ -33,7 +33,7 @@ class Challenge64GCM(GCM):
         
     def _ghash(self, cipher, auth_data, ciphertext):
         if self.hash is None:
-            self._precompute_(ciphertext)
+            self._precompute_hash(ciphertext)
         n = ciphertext.block_count()
         j = 2
         h = self._to_field_elem(self.H)
