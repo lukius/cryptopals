@@ -2,6 +2,7 @@ import threading
 
 from common.attacks.gcm import GCMAuthSubkeyRecoveryAttack
 from common.math.linalg.bit import BitVector, BitMatrix
+from common.tools.blockstring import BlockString
 from common.tools.concurrency import ConcurrentTask, ConcurrentTaskManager
 
 
@@ -38,13 +39,13 @@ class TruncatedMACGCMAttack(GCMAuthSubkeyRecoveryAttack):
             self.AD.append(list())
             for j in xrange(128):
                 D_i[j] = 1
-                AD_i = self._AD_i(D_i, Msq_i)
+                AD_ij = self._AD_ij(D_i, Msq_i)
                 D_i[j] = 0
-                self.AD[i].append(AD_i)
+                self.AD[i].append(AD_ij)
             Msq_i *= Msq
 
-    def _AD_i(self, D_i, Msq_i):
-        w = self.GF2k.element(D_i)
+    def _AD_ij(self, D_ij, Msq_i):
+        w = self.GF2k.element(D_ij)
         Mv = self.GF2k.to_bit_matrix(lambda z: w*z)
         return Mv * Msq_i
 
@@ -151,6 +152,40 @@ class TruncatedMACGCMAttack(GCMAuthSubkeyRecoveryAttack):
         z = self.GF2k.element(h)
         
         return self._from_field_elem(z)
+
+    
+class ExtendedTruncatedMACGCMAttack(TruncatedMACGCMAttack):
+    
+    MAX_EXTENSION = 20
+    
+    def __init__(self, aes, gcm, ciphertext, tag):
+        new_ciphertext = self._extend(ciphertext, tag)
+        self.old_ciphertext = ciphertext
+        TruncatedMACGCMAttack.__init__(self, aes, gcm, new_ciphertext, tag)
+        
+    def _precompute_AD_i(self):
+        self._init_len_matrix()
+        TruncatedMACGCMAttack._precompute_AD_i(self)
+        
+    def _init_len_matrix(self):
+        old_len = len(self.old_ciphertext)*8
+        new_len = len(self.ciphertext)*8
+        D0 = self.GF2k.element(new_len) + self.GF2k.element(old_len)
+        self.MD0 = self.GF2k.to_bit_matrix(lambda z: D0*z)
+        
+    def _extend(self, ciphertext, tag):
+        n = min(len(tag)*4 + 1, self.MAX_EXTENSION)
+        k = 2**n - ciphertext.block_count()
+        prefix = BlockString('\x00'*16*k)
+        return prefix + ciphertext
+        
+    def _AD_ij(self, D_ij, Msq_i):
+        AD_ij = TruncatedMACGCMAttack._AD_ij(self, D_ij, Msq_i)
+        return AD_ij + self.MD0
+    
+    def _build_AD(self, D):
+        AD = TruncatedMACGCMAttack._build_AD(self, D)
+        return AD + self.MD0
     
     
 class TComputationTask(ConcurrentTask):
